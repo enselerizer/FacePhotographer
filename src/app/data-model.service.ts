@@ -5,6 +5,9 @@ import { BehaviorSubject } from 'rxjs';
 const protoData = {
   capturedImage: null
 };
+const protoStatus = {
+  setupDone: false
+};
 
 
 @Injectable({
@@ -13,6 +16,7 @@ const protoData = {
 export class DataModelService {
 
   public data: BehaviorSubject<any> = new BehaviorSubject<any>(protoData);
+  public status: BehaviorSubject<any> = new BehaviorSubject<any>(protoStatus);
 
   constructor() { }
 
@@ -24,5 +28,15 @@ export class DataModelService {
 
   getCapturedImage(): WebcamImage {
     return this.data.getValue().capturedImage;
+  }
+
+  getSetupState(): boolean {
+    return this.status.getValue().setupDone;
+  }
+
+  setSetupState(setupDone: boolean) {
+    const newStatus = Object.create(protoStatus);
+    newStatus.setupDone = setupDone;
+    this.status.next(newStatus);
   }
 }
