@@ -1,0 +1,13 @@
+<div class="container">
+    <div class="header">
+        <div class="label">
+            Шаг 1: захват изображения
+        </div>
+    </div>
+    <div class="stream">
+        <app-camera-stream (pictureTaken)="handleImage($event)"></app-camera-stream>
+    </div>
+    <div class="buttons">
+        <button (click)="capture()">Захватить изображение</button>
+    </div>
+</div>

@@ -52,12 +52,14 @@ function createWindow() {
     minWidth: 640,
     minHeight: 480,
     //frame: false,
-    //backgroundColor: '#262c35',
+    backgroundColor: '#242424',
     darkTheme: true,
     webPreferences: {
       nodeIntegration: true,
     },
   });
+
+  win.removeMenu();
 
   win.loadURL(
     url.format({
