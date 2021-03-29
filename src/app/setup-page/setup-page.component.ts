@@ -47,13 +47,14 @@ export class SetupPageComponent implements OnInit {
       console.log(JSON.parse(JSON.stringify(data)));
       this.data = data;
       if (data.camerasList.length > 0) {
-        this.cameraUI[0].value = false;
-        this.cameraUI[0].label = 'Камера найдена!';
-        this.cameraUI[0].sublabel = data.camerasList[0].label;
+        this.cameraUI = [];
+        data.camerasList.forEach((element, index) => {
+          this.cameraUI.push({ label: 'Камера найдена!', sublabel: element.label, value: false, icon: 'camera_enhance' })
+        });
+        
       } else {
-        this.cameraUI[0].value = true;
-        this.cameraUI[0].label = 'Поиск камеры...';
-        this.cameraUI[0].sublabel = '';
+        this.cameraUI = [];
+        this.cameraUI.push({ label: 'Поиск камеры...', sublabel: '', value: true, icon: 'camera_enhance' })
       }
       if (data.portsList.length > 0) {
         this.serialUI[0].value = false;

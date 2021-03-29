@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { WebcamImage } from 'ngx-webcam';
 import { DataModelService } from '../data-model.service';
+import { CropperComponent } from 'angular-cropperjs';
+
 
 @Component({
   selector: 'app-edit-page',
@@ -11,10 +13,24 @@ export class EditPageComponent implements OnInit {
 
   constructor(private dm: DataModelService) { }
 
+  @ViewChild(CropperComponent) public angularCropper: CropperComponent;
+
+
+  config = {
+    aspectRatio: 3 / 4,
+    preview: '.preview'
+  }
+
   img: WebcamImage;
+
 
   ngOnInit(): void {
     this.img = this.dm.getCapturedImage();
+  }
+
+  save() {
+    const canvas = this.angularCropper.cropper.getCroppedCanvas();
+    this.dm.saveImage(canvas.toDataURL("image/png"));
   }
 
 }

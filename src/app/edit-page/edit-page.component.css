@@ -1,7 +1,9 @@
 .actions {
     text-align: right;
-    margin-right: 8px;
-    margin-bottom: 16px;
+    left: 0;
+    right: 24px;
+    bottom: 24px;
+    position: absolute;
 }
 
 .actions button {
@@ -11,5 +13,47 @@
 .image {
     position: relative;
     width: 100%;
+    max-height: 300px;
     overflow: hidden;
+    border-radius: 10px;
+    margin-bottom: 16px;
+}
+
+.preview-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;   
+}
+
+.preview-wrapper > * {
+    width: 150px;
+    height: 200px;
+    overflow: hidden;
+
+}
+
+.stack {
+    position: relative;
+    
+}
+
+.stack .preview {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+
+.stack img {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    opacity: 0.2;
 }

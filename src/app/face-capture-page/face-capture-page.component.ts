@@ -26,5 +26,8 @@ export class FaceCapturePageComponent implements OnInit {
   capture() {
     this.stream.triggerSnapshot();
   }
+  switch() {
+    this.stream.showNextWebcam(true);
+  }
 
 }

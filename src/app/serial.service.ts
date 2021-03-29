@@ -49,6 +49,16 @@ export class SerialService {
     });
   }
 
+  async sendImageToSave(img) {
+    
+    return new Promise<void>((resolve, reject) => {
+      electron.ipcRenderer.once('sendImageToSaveR', (event, arg) => {
+        resolve();
+      });
+      electron.ipcRenderer.send('sendImageToSave', img);
+    });
+  }
+
   async waitCode() {
     
     return new Promise<String>((resolve, reject) => {

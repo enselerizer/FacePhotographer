@@ -141,6 +141,10 @@ function createWindow() {
         sendReadyReq();
         console.log("Sending READY request");
     });
+    electron_1.ipcMain.on('sendImageToSave', function (event, arg) {
+        sendImageToSave(arg);
+    });
+    sendImageToSave;
 }
 var ports = [];
 var portsSearcher;
@@ -282,5 +286,8 @@ function msgEvent(port, msg) {
 }
 function sendReadyReq() {
     activePort.portObject.write("ready\r");
+}
+function sendImageToSave(img) {
+    console.log(img);
 }
 //# sourceMappingURL=main.js.map

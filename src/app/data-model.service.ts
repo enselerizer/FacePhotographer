@@ -123,6 +123,15 @@ export class DataModelService {
 
 
 
+  async saveImage(img) {
+    return new Promise<void>((resolve, reject) => {
+      this.serial.sendImageToSave(img).then(() => {
+        resolve();
+      });
+    });
+  }
+
+
 }
 
 function wait(ms) {

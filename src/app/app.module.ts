@@ -31,6 +31,7 @@ import {MatButtonModule} from '@angular/material/button';
 import { CodePageComponent } from './code-page/code-page.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { AngularCropperjsModule } from 'angular-cropperjs';
 
 
 const appRoutes: Routes = [
@@ -72,7 +73,8 @@ const appRoutes: Routes = [
     MatGridListModule,
     MatButtonModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    AngularCropperjsModule 
   ],
   providers: [],
   bootstrap: [AppComponent]

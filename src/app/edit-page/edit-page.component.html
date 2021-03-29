@@ -1,10 +1,10 @@
-<mat-grid-list cols="1" rowHeight="100%">
+<mat-grid-list cols="2" rowHeight="100%" style="position: relative;">
     <mat-grid-tile>
 
 
 
 
-        <mat-card style="width: 50%; max-width: 700px;">
+        <mat-card style="position: relative; width: 100%; height: 50%; min-height: 490px; max-height: 550px; max-width: 700px;">
 
             <mat-card-title>
                 Проверьте захват
@@ -12,17 +12,50 @@
 
             <mat-card-content class="content">
              
-                <img [src]="img.imageAsDataUrl" />
+                <angular-cropper class="image" [cropperOptions]="this.config" [imageUrl]="img.imageAsDataUrl"></angular-cropper>
 
-                <div class="image">
-                    Активирована веб-камера. Для удачного снимка голова студента должна оказаться внутри зеленой рамки.
+
+                <div>
+                    Обрежьте изображение в соответствии с подсказкой справа.
                 </div>
             </mat-card-content>
 
-            <mat-card-actions class="actions">
+
+        </mat-card>
+    </mat-grid-tile>
+    <mat-grid-tile>
+
+
+
+
+        <mat-card style="position: relative; width: 100%; height: 50%; min-height: 390px; max-height: 550px; max-width: 700px;">
+
+            <mat-card-title>
+                Проверьте захват
+            </mat-card-title>
+
+            <mat-card-content class="content">
+             
+                <div class="preview-wrapper">
+                    
+                    <div class="preview"></div>
+                    <div class="stack">
+                        <div class="preview"></div>
+                        <img src="assets/face.png" >
+                    </div>
+                </div>
+                
+                <div>
+                    Проверьте отображение и подтвердите.
+                </div>
+            </mat-card-content>
+
+            
+
+            <mat-card-footer class="actions">
                 <button routerLink="/capture" mat-flat-button color="primary">Назад</button>
-                <button mat-flat-button color="accent">Завершить</button>
-            </mat-card-actions>
+                <button (click)="save()" mat-flat-button color="accent">Завершить</button>
+            </mat-card-footer>
 
         </mat-card>
     </mat-grid-tile>
