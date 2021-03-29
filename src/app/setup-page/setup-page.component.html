@@ -12,20 +12,36 @@
 
             <mat-card-content>
                 <mat-list>
-                    <ng-template let-item let-last="last" ngFor [ngForOf]="testsList">
+                    <ng-template let-item let-last="last" ngFor [ngForOf]="cameraUI">
                         <mat-list-item>
                             <div matListAvatar>
                                 <ng-template tdLoading [tdLoadingUntil]="!item.value" tdLoadingStrategy="overlay">
                                     <mat-icon matListAvatar>{{item.icon}}</mat-icon>
                                 </ng-template>
                             </div>
-                            <h3 matLine>{{ item.label }}</h3>
+                            <h3 matLine>{{ item.label }} <br> <span class="mat-body">{{ item.sublabel }}</span></h3>
+                        </mat-list-item>
+                        <mat-divider *ngIf="!last"></mat-divider>
+                    </ng-template>
+                    <mat-divider></mat-divider>
+                    <ng-template let-item let-last="last" ngFor [ngForOf]="serialUI">
+                        <mat-list-item>
+                            <div matListAvatar>
+                                <ng-template tdLoading [tdLoadingUntil]="!item.value" tdLoadingStrategy="overlay">
+                                    <mat-icon matListAvatar>{{item.icon}}</mat-icon>
+                                </ng-template>
+                            </div>
+                            <h3 matLine>{{ item.label }} <br> <span class="mat-body">{{ item.sublabel }}</span></h3>
                         </mat-list-item>
                         <mat-divider *ngIf="!last"></mat-divider>
                     </ng-template>
                 </mat-list>
             </mat-card-content>
 
+            <mat-card-actions class="actions">
+                <button mat-flat-button color="primary">Обучение</button>
+                <button *ngIf="this.status.devicesReady" routerLink="/start" mat-flat-button color="accent">Продолжить</button>
+            </mat-card-actions>
 
         </mat-card>
     </mat-grid-tile>

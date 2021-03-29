@@ -42,6 +42,9 @@ var url = require("url");
 var fs = require("fs");
 var util = require("util");
 var rimraf = require("rimraf");
+var serial = require("serialport");
+var Ready = require('@serialport/parser-ready');
+var Readline = require('@serialport/parser-readline');
 var win;
 var tempFolder = __dirname + '\\temp';
 var awUnlink = util.promisify(fs.unlink);
@@ -107,6 +110,7 @@ function createWindow() {
         darkTheme: true,
         webPreferences: {
             nodeIntegration: true,
+            contextIsolation: false
         },
     });
     win.removeMenu();
@@ -115,7 +119,7 @@ function createWindow() {
         protocol: 'file:',
         slashes: true,
     }));
-    //win.webContents.openDevTools();
+    win.webContents.openDevTools();
     // win.on('closed', () => {
     //   win = null;
     // });
@@ -125,5 +129,158 @@ function createWindow() {
     // win.on('unmaximize', () => {
     //   win.webContents.send('windowStatusChanged', false);
     // });
+    electron_1.ipcMain.on('serialGetList', function (event, arg) {
+        getPortsList(function (data, data2) {
+            win.webContents.send('serialGetListR', data2);
+        });
+    });
+    electron_1.ipcMain.on('serialConnect', function (event, arg) {
+        searchDevices();
+    });
+    electron_1.ipcMain.on('serialSendReadyReq', function (event, arg) {
+        sendReadyReq();
+        console.log("Sending READY request");
+    });
+}
+var ports = [];
+var portsSearcher;
+var activePort;
+function searchDevices() {
+    ports.forEach(function (item) {
+        if (item.isPortOpened) {
+            item.portObject.close();
+        }
+    });
+    ports = [];
+    portsSearcher = null;
+    activePort = null;
+    console.log("START Pinging ports");
+    portsSearcher = setInterval(function () {
+        getPortsList(function () {
+            ports.forEach(function (item, i) {
+                openPort(i, function (port) {
+                    win.webContents.send('serialConnectR', port);
+                });
+            });
+        });
+    }, 100);
+}
+function openPort(portIndex, callback) {
+    if (!ports[portIndex].isPortOpened && !ports[portIndex].isPortOpening) {
+        var portNum_1 = ports[portIndex].portDef.path;
+        console.log("Ping port " + portNum_1);
+        ports[portIndex].isPortOpening = true;
+        ports[portIndex].portObject = new serial("\\\\.\\" + portNum_1, {
+            baudRate: 115200
+        }, function (err) {
+            if (err) {
+                console.log("Port " + portNum_1 + " failed to open! Error: " + err);
+                ports[portIndex].isPortOpening = false;
+            }
+            else {
+                ports[portIndex].isPortOpened = true;
+                ports[portIndex].isPortOpening = false;
+                ports[portIndex].portParserReady = ports[portIndex].portObject.pipe(new Ready({ delimiter: 'ready?' }));
+                ports[portIndex].portParserReady.on('ready', function () {
+                    console.log("Reader " + portNum_1 + " is here!");
+                    activePort = ports[portIndex];
+                    clearInterval(portsSearcher);
+                    console.log("STOP Pinging ports");
+                    beginKeepalive(activePort);
+                    activePort.portParserLine = ports[portIndex].portObject.pipe(new Readline({ delimiter: '\n' }));
+                    activePort.portParserLine.on('data', function (msg) {
+                        activePort.isPortReady = true;
+                        var res = msg.match(/\#([0-9]+)/);
+                        if (res != null) {
+                            callback({
+                                sn: 'SN' + res[1],
+                                port: activePort.portDef.path
+                            });
+                        }
+                        msgEvent(activePort, msg);
+                    });
+                    ports[portIndex].portObject.write("hello\r");
+                });
+            }
+        });
+        ports[portIndex].portObject.on('close', function () {
+            if (ports[portIndex] != undefined && ports[portIndex].isPortOpened != undefined) {
+                ports[portIndex].isPortOpened = false;
+                ports[portIndex].isPortOpening = false;
+            }
+        });
+    }
+    else {
+        console.log("Skipping port " + ports[portIndex].portDef.path + " (" + (ports[portIndex].isPortOpened ? "opened" : "") + (ports[portIndex].isPortOpening ? "opening" : "") + ")");
+    }
+}
+function getPortsList(callback) {
+    serial.list().then(function (portsList) {
+        var newPorts = [];
+        portsList.forEach(function (item) {
+            newPorts.push({
+                portDef: item,
+                portObject: null,
+                portParserReady: null,
+                portParserLine: null,
+                isPortOpened: false,
+                isPortOpening: false,
+                isPortReady: false,
+                pingObject: null,
+                keepaliveObject: null,
+                keepaliveTimer: []
+            });
+        });
+        ports.forEach(function (item, index) {
+            if (newPorts.filter(function (i) { return i.portDef.path == item.portDef.path; }).length == 0) {
+                ports.splice(index, 1);
+            }
+        });
+        newPorts.forEach(function (item) {
+            if (ports.filter(function (i) { return i.portDef.path == item.portDef.path; }).length == 0) {
+                ports.push(item);
+            }
+        });
+        callback(null, portsList);
+    });
+}
+;
+function beginKeepalive(port) {
+    if (port.isPortOpened) {
+        port.keepaliveObject = setInterval(function () {
+            port.portObject.write("keepalive\r");
+            //console.log("Checking if reader is still alive...");
+            port.keepaliveTimer.push(setTimeout(function () {
+                console.log("Reader not alive!");
+                stopKeepalive(port);
+                win.webContents.send('serialConnectionLost');
+                //searchDevices();
+            }, 4000));
+        }, 1500);
+    }
+}
+function stopKeepalive(port) {
+    port.keepaliveTimer.forEach(function (item) {
+        clearTimeout(item);
+    });
+    clearInterval(port.keepaliveObject);
+}
+function msgEvent(port, msg) {
+    if (msg == "alive\r") {
+        port.keepaliveTimer.forEach(function (item) {
+            clearTimeout(item);
+        });
+        port.keepaliveTimer = [];
+    }
+    else if (msg == "OK\r") {
+        win.webContents.send('serialSendReadyReqR');
+    }
+    else if (msg.match(/code-([0-9]+)/) != null) {
+        console.log(msg.match(/code-([0-9]+)/));
+        win.webContents.send('serialGotCode', msg.match(/code-([0-9]+)/)[1]);
+    }
+}
+function sendReadyReq() {
+    activePort.portObject.write("ready\r");
 }
 //# sourceMappingURL=main.js.map

@@ -27,12 +27,18 @@ import {MatListModule} from '@angular/material/list';
 import {MatIconModule} from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import {MatGridListModule} from '@angular/material/grid-list';
+import {MatButtonModule} from '@angular/material/button';
+import { CodePageComponent } from './code-page/code-page.component';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 
 const appRoutes: Routes = [
-  { path: '', component: StartPageComponent},
+  { path: '', redirectTo: '/setup', pathMatch: 'full' },
+  { path: 'start', component: StartPageComponent},
   { path: 'setup', component: SetupPageComponent},
   { path: 'capture', component: FaceCapturePageComponent},
+  { path: 'code', component: CodePageComponent},
   { path: 'edit', component: EditPageComponent}
 ];
 
@@ -43,11 +49,12 @@ const appRoutes: Routes = [
     CameraStreamComponent,
     FaceCapturePageComponent,
     EditPageComponent,
-    SetupPageComponent
+    SetupPageComponent,
+    CodePageComponent
   ],
   imports: [
     BrowserModule,
-    RouterModule.forRoot(appRoutes),
+    RouterModule.forRoot(appRoutes, { relativeLinkResolution: 'legacy' }),
     WebcamModule,
     CovalentLayoutModule,
     CovalentStepsModule,
@@ -62,7 +69,10 @@ const appRoutes: Routes = [
     MatListModule,
     MatIconModule,
     MatCardModule,
-    MatGridListModule
+    MatGridListModule,
+    MatButtonModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

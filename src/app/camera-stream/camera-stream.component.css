@@ -14,3 +14,9 @@
 ul.links{
     padding-bottom: 20px;
 }
+
+.stream {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}

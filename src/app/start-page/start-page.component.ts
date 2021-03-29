@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { first } from 'rxjs/operators';
 import { DataModelService } from '../data-model.service';
 
 @Component({
@@ -9,12 +10,9 @@ import { DataModelService } from '../data-model.service';
 })
 export class StartPageComponent implements OnInit {
 
-  constructor(private dm: DataModelService, private router: Router) { }
+  constructor(private dm: DataModelService, private router: Router, private zone: NgZone, private cd: ChangeDetectorRef) { }
 
   ngOnInit(): void {
-    if(!this.dm.getSetupState()) {
-      this.router.navigateByUrl('/setup');
-    }
   }
 
 

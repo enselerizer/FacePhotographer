@@ -1,0 +1,9 @@
+.actions {
+    text-align: right;
+    margin-right: 8px;
+    margin-bottom: 16px;
+}
+
+.actions button {
+   margin-left:8px;
+}

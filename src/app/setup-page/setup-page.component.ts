@@ -1,5 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { WebcamUtil } from 'ngx-webcam';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {
+  MatSnackBar,
+  MatSnackBarHorizontalPosition,
+  MatSnackBarVerticalPosition,
+} from '@angular/material/snack-bar';
+import { DataModelService } from '../data-model.service';
 
 @Component({
   selector: 'app-setup-page',
@@ -8,28 +13,64 @@ import { WebcamUtil } from 'ngx-webcam';
 })
 export class SetupPageComponent implements OnInit {
 
-  constructor() { }
+  constructor(private dm: DataModelService, private cd: ChangeDetectorRef, private _snackBar: MatSnackBar) { }
 
-  testsList: any[] = [
-    { label: 'Поиск камеры...', value: true, icon: 'camera_enhance' },
-    { label: 'Поиск RFID считывателя...', value: true, icon: 'surround_sound' },
+  cameraUI: any[] = [
+    { label: 'Поиск камеры...', sublabel: '', value: true, icon: 'camera_enhance' },
+  ];
+
+  serialUI: any[] = [
+    { label: 'Поиск RFID считывателя...', sublabel: '', value: true, icon: 'surround_sound' },
   ];
 
   filter_mediaVideoDevices(dev) {
     return dev.kind == "videoinput";
   }
 
+  data;
+  status;
 
   ngOnInit(): void {
-    WebcamUtil.getAvailableVideoInputs()
-      .then((mediaDevices: MediaDeviceInfo[]) => {
-        let mediaVideoDevices: Array<any> = mediaDevices.filter(this.filter_mediaVideoDevices);
-        if(mediaVideoDevices.length > 0) {
-          this.testsList[0].value = false;
-          this.testsList[0].label ='Камера найдена: '+mediaVideoDevices[0].label;
-        }
+    this.dm.status.subscribe((status) => {
+      this.status = status;
+      // if (!status.devicesReady) {
+      //   this._snackBar.open('RFID считыватель потерян!', 'Ок', {
+      //     duration: 500,
+      //     horizontalPosition: 'right',
+      //     verticalPosition: 'top'
+      //   });
+      // }
+      this.cd.detectChanges();
+    });
 
-      });
+    this.dm.data.subscribe((data) => {
+      console.log(JSON.parse(JSON.stringify(data)));
+      this.data = data;
+      if (data.camerasList.length > 0) {
+        this.cameraUI[0].value = false;
+        this.cameraUI[0].label = 'Камера найдена!';
+        this.cameraUI[0].sublabel = data.camerasList[0].label;
+      } else {
+        this.cameraUI[0].value = true;
+        this.cameraUI[0].label = 'Поиск камеры...';
+        this.cameraUI[0].sublabel = '';
+      }
+      if (data.portsList.length > 0) {
+        this.serialUI[0].value = false;
+        this.serialUI[0].label = 'Считыватель найден!';
+        this.serialUI[0].sublabel = 'Порт ' + data.portsList[0].port + ', серийный номер: ' + data.portsList[0].sn;
+      } else {
+        this.serialUI[0].value = true;
+        this.serialUI[0].label = 'Поиск RFID считывателя...';
+        this.serialUI[0].sublabel = '';
+      }
+      this.cd.detectChanges();
+    });
+
+    if(!this.dm.getIsInitDone()) {
+      this.dm.initDevices();
+    }
+    
+
   }
-
 }
