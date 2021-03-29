@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { WebcamImage } from 'ngx-webcam';
 import { CameraStreamComponent } from '../camera-stream/camera-stream.component';
@@ -13,9 +13,15 @@ export class FaceCapturePageComponent implements OnInit {
 
   @ViewChild(CameraStreamComponent) stream:CameraStreamComponent;
 
-  constructor(private dm: DataModelService, private router: Router) { }
+  constructor(private dm: DataModelService, private router: Router, private cd: ChangeDetectorRef) { }
+
+data;
 
   ngOnInit(): void {
+    this.dm.data.subscribe((data) => {
+      this.data = data;
+      this.cd.detectChanges();
+    });
   }
   public webcamImage: WebcamImage = null;
 

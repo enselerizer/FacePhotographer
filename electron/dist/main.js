@@ -45,6 +45,7 @@ var rimraf = require("rimraf");
 var serial = require("serialport");
 var Ready = require('@serialport/parser-ready');
 var Readline = require('@serialport/parser-readline');
+var dataUriToBuffer = require('data-uri-to-buffer');
 var win;
 var tempFolder = __dirname + '\\temp';
 var awUnlink = util.promisify(fs.unlink);
@@ -287,7 +288,11 @@ function msgEvent(port, msg) {
 function sendReadyReq() {
     activePort.portObject.write("ready\r");
 }
-function sendImageToSave(img) {
-    console.log(img);
+function sendImageToSave(file) {
+    var buffer = dataUriToBuffer(file.img);
+    fs.writeFile("C://mirea-faces/" + file.code + ".png", buffer, function (err) {
+        if (err)
+            return console.error(err);
+    });
 }
 //# sourceMappingURL=main.js.map

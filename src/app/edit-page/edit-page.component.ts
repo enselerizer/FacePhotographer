@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { WebcamImage } from 'ngx-webcam';
 import { DataModelService } from '../data-model.service';
 import { CropperComponent } from 'angular-cropperjs';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -11,7 +12,7 @@ import { CropperComponent } from 'angular-cropperjs';
 })
 export class EditPageComponent implements OnInit {
 
-  constructor(private dm: DataModelService) { }
+  constructor(private dm: DataModelService, private cd: ChangeDetectorRef, private router: Router) { }
 
   @ViewChild(CropperComponent) public angularCropper: CropperComponent;
 
@@ -24,13 +25,18 @@ export class EditPageComponent implements OnInit {
   img: WebcamImage;
 
 
+
   ngOnInit(): void {
     this.img = this.dm.getCapturedImage();
   }
 
   save() {
-    const canvas = this.angularCropper.cropper.getCroppedCanvas();
+    const canvas = this.angularCropper.cropper.getCroppedCanvas({
+      width: 150,
+      height: 200
+    });
     this.dm.saveImage(canvas.toDataURL("image/png"));
+    this.router.navigateByUrl("/start");
   }
 
 }

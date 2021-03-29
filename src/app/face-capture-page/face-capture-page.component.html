@@ -23,7 +23,7 @@
 
             <mat-card-actions  class="actions">
                 <button routerLink="/code" mat-flat-button color="primary">Назад</button>
-                <button (click)="switch()" mat-flat-button color="primary">Другая камера</button>
+                <button *ngIf="data.camerasList.length > 1" (click)="switch()" mat-flat-button color="primary">Другая камера</button>
                 <button (click)="capture()" mat-flat-button color="accent">Захватить</button>
             </mat-card-actions>
 

@@ -31,7 +31,11 @@
     width: 150px;
     height: 200px;
     overflow: hidden;
+    border-radius: 3px;
+}
 
+.preview-wrapper > *:not(:last-child) {
+    margin-right: 16px;
 }
 
 .stack {

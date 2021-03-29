@@ -55,7 +55,7 @@ export class SerialService {
       electron.ipcRenderer.once('sendImageToSaveR', (event, arg) => {
         resolve();
       });
-      electron.ipcRenderer.send('sendImageToSave', img);
+      electron.ipcRenderer.send('sendImageToSave', {img, code: this.getCode()});
     });
   }
 
@@ -78,6 +78,9 @@ export class SerialService {
 
   setCode(code) {
     this.code.next(code);
+  }
+  getCode() {
+    return this.code.getValue();
   }
 
 }

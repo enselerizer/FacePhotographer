@@ -8,6 +8,7 @@ import * as serial from 'serialport';
 
 const Ready = require('@serialport/parser-ready')
 const Readline = require('@serialport/parser-readline')
+var dataUriToBuffer = require('data-uri-to-buffer');
 
 let win: BrowserWindow;
 
@@ -74,7 +75,7 @@ function createWindow() {
     })
   );
 
-  win.webContents.openDevTools();
+  //win.webContents.openDevTools();
 
   // win.on('closed', () => {
   //   win = null;
@@ -275,6 +276,10 @@ function sendReadyReq() {
   activePort.portObject.write("ready\r");
 }
 
-function sendImageToSave(img) {
-  console.log(img);
+function sendImageToSave(file) {
+  let buffer = dataUriToBuffer(file.img);
+  fs.writeFile("C://mirea-faces/"+file.code+".png", buffer, (err) => {
+    if (err) return console.error(err)
+  })
+
 }
