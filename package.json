@@ -9,7 +9,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "e": "ng build --base-href ./ && tsc --p electron && electron electron/dist/main.js"
+    "e": "ng build --base-href ./ && tsc --p electron && electron electron/dist/main.js",
+    "e-build": "ng build --base-href ./ && tsc --p electron && electron-packager . face-photographer  --platform=win32 --arch=ia32 --overwrite --out=./package"
   },
   "private": true,
   "dependencies": {
@@ -37,6 +38,7 @@
     "cropperjs": "^1.5.11",
     "data-uri-to-buffer": "^3.0.1",
     "echarts": "^5.0.2",
+    "electron-packager": "^15.2.0",
     "electron-rebuild": "^2.3.5",
     "ngx-webcam": "^0.3.2",
     "node-sass": "^4.14.1",

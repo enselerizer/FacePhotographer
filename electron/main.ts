@@ -278,6 +278,9 @@ function sendReadyReq() {
 
 function sendImageToSave(file) {
   let buffer = dataUriToBuffer(file.img);
+  if (!fs.existsSync("C://mirea-faces/")){
+    fs.mkdirSync("C://mirea-faces/");
+}
   fs.writeFile("C://mirea-faces/"+file.code+".png", buffer, (err) => {
     if (err) return console.error(err)
   })

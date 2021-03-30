@@ -120,7 +120,7 @@ function createWindow() {
         protocol: 'file:',
         slashes: true,
     }));
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
     // win.on('closed', () => {
     //   win = null;
     // });
@@ -290,6 +290,9 @@ function sendReadyReq() {
 }
 function sendImageToSave(file) {
     var buffer = dataUriToBuffer(file.img);
+    if (!fs.existsSync("C://mirea-faces/")) {
+        fs.mkdirSync("C://mirea-faces/");
+    }
     fs.writeFile("C://mirea-faces/" + file.code + ".png", buffer, function (err) {
         if (err)
             return console.error(err);
