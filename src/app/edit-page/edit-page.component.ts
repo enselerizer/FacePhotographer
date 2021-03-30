@@ -31,10 +31,7 @@ export class EditPageComponent implements OnInit {
   }
 
   save() {
-    const canvas = this.angularCropper.cropper.getCroppedCanvas({
-      width: 150,
-      height: 200
-    });
+    const canvas = this.angularCropper.cropper.getCroppedCanvas(this.dm.getResolution());
     this.dm.saveImage(canvas.toDataURL("image/png"));
     this.router.navigateByUrl("/start");
   }

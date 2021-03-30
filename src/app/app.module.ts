@@ -32,6 +32,8 @@ import { CodePageComponent } from './code-page/code-page.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { AngularCropperjsModule } from 'angular-cropperjs';
+import {MatSliderModule} from '@angular/material/slider';
+import { FormsModule } from '@angular/forms';
 
 
 const appRoutes: Routes = [
@@ -55,6 +57,7 @@ const appRoutes: Routes = [
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     RouterModule.forRoot(appRoutes, { relativeLinkResolution: 'legacy' }),
     WebcamModule,
     CovalentLayoutModule,
@@ -74,7 +77,8 @@ const appRoutes: Routes = [
     MatButtonModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    AngularCropperjsModule 
+    AngularCropperjsModule,
+    MatSliderModule
   ],
   providers: [],
   bootstrap: [AppComponent]

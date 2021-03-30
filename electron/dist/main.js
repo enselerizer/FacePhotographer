@@ -147,7 +147,15 @@ function createWindow() {
     electron_1.ipcMain.on('sendImageToSave', function (event, arg) {
         sendImageToSave(arg);
     });
-    sendImageToSave;
+    electron_1.ipcMain.on('sendImageToSave', function (event, arg) {
+        sendImageToSave(arg);
+    });
+    electron_1.ipcMain.on('readResolution', function (event, arg) {
+        readResolution();
+    });
+    electron_1.ipcMain.on('writeResolution', function (event, height) {
+        writeResolution(height, function () { });
+    });
 }
 var ports = [];
 var portsSearcher;
@@ -305,5 +313,32 @@ function sendImageToSave(file) {
         if (err)
             return console.error(err);
     });
+}
+function writeResolution(height, callback) {
+    fs.writeFile('res-config.txt', height, { flag: 'w' }, function (err) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        callback();
+    });
+}
+function readResolution() {
+    if (fs.existsSync("res-config.txt")) {
+        fs.readFile('res-config.txt', "utf8", function (err, data) {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                win.webContents.send('gotResolution', data);
+                console.log(data);
+            }
+        });
+    }
+    else {
+        writeResolution("800", function () {
+            win.webContents.send('gotResolution', "800");
+        });
+    }
 }
 //# sourceMappingURL=main.js.map

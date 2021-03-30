@@ -108,8 +108,17 @@ function createWindow() {
   ipcMain.on('sendImageToSave', (event, arg) => {
     sendImageToSave(arg);
   });
+  ipcMain.on('sendImageToSave', (event, arg) => {
+    sendImageToSave(arg);
+  });
 
-  sendImageToSave
+  ipcMain.on('readResolution', (event, arg) => {
+    readResolution();
+  });
+
+  ipcMain.on('writeResolution', (event, height) => {
+    writeResolution(height, () => { });
+  });
 }
 
 
@@ -120,7 +129,7 @@ let activePort;
 
 function searchDevices() {
   ports.forEach(item => {
-    if(item.isPortOpened) {
+    if (item.isPortOpened) {
       item.portObject.close();
     }
   });
@@ -129,7 +138,7 @@ function searchDevices() {
   activePort = null;
   console.log("START Pinging ports");
   portsSearcher = setInterval(() => {
-    
+
     getPortsList(() => {
       ports.forEach((item, i) => {
         openPort(i, (port) => {
@@ -168,16 +177,16 @@ function openPort(portIndex, callback) {
           activePort.portParserLine = ports[portIndex].portObject.pipe(new Readline({ delimiter: '\n' }))
           activePort.portParserLine.on('data', (msg) => {
             activePort.isPortReady = true;
-            
+
             let res = msg.match(/\#([0-9]+)/);
-            if(res != null) {
+            if (res != null) {
               callback({
-                sn: 'SN'+res[1],
+                sn: 'SN' + res[1],
                 port: activePort.portDef.path
               });
             }
-            
-           
+
+
             msgEvent(activePort, msg);
           })
 
@@ -188,11 +197,11 @@ function openPort(portIndex, callback) {
       }
     });
     ports[portIndex].portObject.on('close', () => {
-      if(ports[portIndex] != undefined && ports[portIndex].isPortOpened != undefined) {
+      if (ports[portIndex] != undefined && ports[portIndex].isPortOpened != undefined) {
         ports[portIndex].isPortOpened = false;
         ports[portIndex].isPortOpening = false;
       }
-      
+
     });
   } else {
     console.log("Skipping port " + ports[portIndex].portDef.path + " (" + (ports[portIndex].isPortOpened ? "opened" : "") + (ports[portIndex].isPortOpening ? "opening" : "") + ")");
@@ -242,13 +251,13 @@ function beginKeepalive(port) {
     port.keepaliveObject = setInterval(() => {
 
       port.portObject.write("keepalive\r");
-      
-      console.log(new Date().toDateString()+"Checking if reader is still alive...");
+
+      console.log(new Date().toDateString() + "Checking if reader is still alive...");
       port.keepaliveTimer.push(setTimeout(() => {
         console.log("Reader not alive!");
         stopKeepalive(port);
         app.relaunch();
-        app.exit();    
+        app.exit();
       }, 6000));
 
     }, 500);
@@ -263,16 +272,16 @@ function stopKeepalive(port) {
 }
 
 function msgEvent(port, msg) {
-  console.log(new Date().toDateString()+JSON.stringify(msg));
-  if(msg == "alive\r") {
+  console.log(new Date().toDateString() + JSON.stringify(msg));
+  if (msg == "alive\r") {
     port.keepaliveTimer.forEach(item => {
       clearTimeout(item);
     });
     port.keepaliveTimer = [];
-  } else if(msg == "OK\r") {
+  } else if (msg == "OK\r") {
     clearInterval(activePort.readySender);
     win.webContents.send('serialSendReadyReqR');
-  } else if(msg.match(/code-([0-9]+)/) != null) {
+  } else if (msg.match(/code-([0-9]+)/) != null) {
     console.log(msg.match(/code-([0-9]+)/));
     win.webContents.send('serialGotCode', msg.match(/code-([0-9]+)/)[1]);
   }
@@ -288,11 +297,42 @@ function sendReadyReq() {
 
 function sendImageToSave(file) {
   let buffer = dataUriToBuffer(file.img);
-  if (!fs.existsSync("C://mirea-faces/")){
+  if (!fs.existsSync("C://mirea-faces/")) {
     fs.mkdirSync("C://mirea-faces/");
-}
-  fs.writeFile("C://mirea-faces/"+file.code+".png", buffer, (err) => {
+  }
+  fs.writeFile("C://mirea-faces/" + file.code + ".png", buffer, (err) => {
     if (err) return console.error(err)
   })
 
+}
+
+function writeResolution(height, callback) {
+  fs.writeFile('res-config.txt', height, { flag: 'w' }, (err) => {
+    if (err) {
+      console.error(err)
+      return
+    }
+    callback();
+  })
+}
+
+function readResolution() {
+
+  if (fs.existsSync("res-config.txt")) {
+    fs.readFile('res-config.txt', "utf8", (err, data) => {
+      if (err) {
+        console.log(err);
+      } else {
+        win.webContents.send('gotResolution', data);
+        console.log(data);
+      }
+  
+    })
+  } else {
+    writeResolution("800", () => {
+      win.webContents.send('gotResolution', "800");
+    });
+  }
+
+  
 }

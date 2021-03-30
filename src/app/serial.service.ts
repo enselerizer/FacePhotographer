@@ -32,7 +32,10 @@ export class SerialService {
       electron.ipcRenderer.once('serialConnectR', (event, port) => {
         console.log(port);
         this.setIsDeviceActive(true);
-        resolve(port);
+        this.readResolution().then((height) => {
+          resolve({port, height});
+        });
+        
       });
       electron.ipcRenderer.send('serialConnect');
     });
@@ -81,6 +84,24 @@ export class SerialService {
   }
   getCode() {
     return this.code.getValue();
+  }
+
+  async readResolution() {
+    
+    return new Promise<Number>((resolve, reject) => {
+      electron.ipcRenderer.once('gotResolution', (event, height) => {
+        resolve(Number(height));
+      });
+      electron.ipcRenderer.send('readResolution');
+    });
+  }
+
+  async writeResolution(height) {
+    
+    return new Promise<void>((resolve, reject) => {
+      electron.ipcRenderer.send('writeResolution', ''+height);
+      resolve();
+    });
   }
 
 }

@@ -31,16 +31,24 @@
                                     <mat-icon matListAvatar>{{item.icon}}</mat-icon>
                                 </ng-template>
                             </div>
-                            <h3 matLine>{{ item.label }}  <span class="mat-body"><br>{{ item.sublabel }}</span></h3>
+                            <h3 matLine>{{ item.label }} <span class="mat-body"><br>{{ item.sublabel }}</span></h3>
                         </mat-list-item>
                         <mat-divider *ngIf="!last"></mat-divider>
                     </ng-template>
                 </mat-list>
+                <div *ngIf="this.status.devicesReady">
+                    <br>
+                    <span class="mat-h4">Выберите разрешение фото:</span>
+                    <mat-slider class="example-margin" (ngModelChange)="onChange($event)" [max]="800" [min]="200" [step]="200" [(ngModel)]="sliderValue">
+                    </mat-slider>
+                    <span class="mat-body">Выбранное разрешение: {{sliderValue/4*3}}x{{sliderValue}}</span>
+                </div>
             </mat-card-content>
 
             <mat-card-actions class="actions">
                 <button mat-flat-button disabled>Обучение (скоро)</button>
-                <button *ngIf="this.status.devicesReady" routerLink="/start" mat-flat-button color="accent">Продолжить</button>
+                <button *ngIf="this.status.devicesReady" routerLink="/start" mat-flat-button
+                    color="accent">Продолжить</button>
             </mat-card-actions>
 
         </mat-card>

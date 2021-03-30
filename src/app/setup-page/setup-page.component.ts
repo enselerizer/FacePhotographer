@@ -29,8 +29,11 @@ export class SetupPageComponent implements OnInit {
 
   data;
   status;
+  sliderValue = 200;
 
   ngOnInit(): void {
+
+
     this.dm.status.subscribe((status) => {
       this.status = status;
       // if (!status.devicesReady) {
@@ -44,6 +47,7 @@ export class SetupPageComponent implements OnInit {
     });
 
     this.dm.data.subscribe((data) => {
+      this.sliderValue = data.resolution.height;
       console.log(JSON.parse(JSON.stringify(data)));
       this.data = data;
       if (data.camerasList.length > 0) {
@@ -73,5 +77,9 @@ export class SetupPageComponent implements OnInit {
     }
     
 
+  }
+
+  onChange(newVal) {
+    this.dm.setResolution(newVal/4*3, newVal);
   }
 }

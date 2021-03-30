@@ -8,7 +8,11 @@ import { Router } from '@angular/router';
 const protoData = {
   capturedImage: null,
   camerasList: [],
-  portsList: []
+  portsList: [],
+  resolution: {
+    width: 600,
+    height: 800
+  }
 };
 const protoStatus = {
   devicesReady: false,
@@ -40,6 +44,15 @@ export class DataModelService {
   }
   getIsInitDone() {
     return this.status.getValue().isInitDone;
+  }
+  getResolution() {
+    return this.data.getValue().resolution;
+  }
+  setResolution(width, height) {
+    const newData = this.data.getValue();
+    newData.resolution = {width, height};
+    this.data.next(newData);
+    this.serial.writeResolution(height);
   }
 
   setDevicesReady(devicesReady: boolean) {
@@ -80,10 +93,11 @@ export class DataModelService {
     return new Promise<any>((resolve, reject) => {
       this.initCamera().then(wait(1000)).then((cameras) => {
         this.setCamerasList(cameras);
-        this.serial.init().then((ports) => {
-          this.setPortsList([ports]);
+        this.serial.init().then((data) => {
+          this.setResolution(data.height/4*3, data.height);
+          this.setPortsList([data.ports]);
           this.setDevicesReady(true);
-          resolve({ cameras, ports });
+          resolve({ cameras, ports: data.ports });
         });
       });
     });
@@ -102,10 +116,10 @@ export class DataModelService {
 
   async initSerial() {
     return new Promise<any>((resolve, reject) => {
-      this.serial.init().then((ports) => {
-        this.setPortsList([ports]);
+      this.serial.init().then((data) => {
+        this.setPortsList([data.ports]);
         this.setDevicesReady(true);
-        resolve({ ports });
+        resolve({ ports:data.ports });
       });
     });
   }
