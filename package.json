@@ -9,8 +9,11 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "e": "ng build --base-href ./ && tsc --p electron && electron electron/dist/main.js",
-    "e-build": "ng build --base-href ./ && tsc --p electron && electron-packager . face-photographer  --platform=win32 --arch=ia32 --overwrite --out=./package"
+    "rebuild": "electron-rebuild -f",
+    "e": "ng build --base-href ./ && tsc --p electron && electron .",
+
+    "ne": "tsc --p electron && electron .",
+    "e-build": "ng build --base-href ./ && tsc --p electron && electron-packager . face-photographer --prune=true --platform=win32 --arch=ia32 --overwrite --out=./package"
   },
   "private": true,
   "dependencies": {

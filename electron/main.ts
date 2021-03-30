@@ -66,6 +66,7 @@ function createWindow() {
   });
 
   win.removeMenu();
+  win.maximize();
 
   win.loadURL(
     url.format({
@@ -214,7 +215,8 @@ function getPortsList(callback) {
         isPortReady: false,
         pingObject: null,
         keepaliveObject: null,
-        keepaliveTimer: []
+        keepaliveTimer: [],
+        readySender: null
       });
     });
 
@@ -239,15 +241,16 @@ function beginKeepalive(port) {
     port.keepaliveObject = setInterval(() => {
 
       port.portObject.write("keepalive\r");
-      //console.log("Checking if reader is still alive...");
+      
+      console.log(new Date().toDateString()+"Checking if reader is still alive...");
       port.keepaliveTimer.push(setTimeout(() => {
         console.log("Reader not alive!");
         stopKeepalive(port);
-        win.webContents.send('serialConnectionLost');
-        //searchDevices();
-      }, 4000));
+        app.relaunch();
+        app.exit();    
+      }, 6000));
 
-    }, 1500);
+    }, 500);
   }
 }
 
@@ -259,12 +262,14 @@ function stopKeepalive(port) {
 }
 
 function msgEvent(port, msg) {
+  console.log(new Date().toDateString()+JSON.stringify(msg));
   if(msg == "alive\r") {
     port.keepaliveTimer.forEach(item => {
       clearTimeout(item);
     });
     port.keepaliveTimer = [];
   } else if(msg == "OK\r") {
+    clearInterval(activePort.readySender);
     win.webContents.send('serialSendReadyReqR');
   } else if(msg.match(/code-([0-9]+)/) != null) {
     console.log(msg.match(/code-([0-9]+)/));
@@ -274,6 +279,10 @@ function msgEvent(port, msg) {
 
 function sendReadyReq() {
   activePort.portObject.write("ready\r");
+  activePort.readySender = setInterval(() => {
+    activePort.portObject.write("ready\r");
+  }, 300);
+
 }
 
 function sendImageToSave(file) {

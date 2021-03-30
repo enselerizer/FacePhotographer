@@ -115,6 +115,7 @@ function createWindow() {
         },
     });
     win.removeMenu();
+    win.maximize();
     win.loadURL(url.format({
         pathname: path.join(__dirname, "../../dist/FacePhotographer/index.html"),
         protocol: 'file:',
@@ -233,7 +234,8 @@ function getPortsList(callback) {
                 isPortReady: false,
                 pingObject: null,
                 keepaliveObject: null,
-                keepaliveTimer: []
+                keepaliveTimer: [],
+                readySender: null
             });
         });
         ports.forEach(function (item, index) {
@@ -254,14 +256,14 @@ function beginKeepalive(port) {
     if (port.isPortOpened) {
         port.keepaliveObject = setInterval(function () {
             port.portObject.write("keepalive\r");
-            //console.log("Checking if reader is still alive...");
+            console.log(new Date().toDateString() + "Checking if reader is still alive...");
             port.keepaliveTimer.push(setTimeout(function () {
                 console.log("Reader not alive!");
                 stopKeepalive(port);
-                win.webContents.send('serialConnectionLost');
-                //searchDevices();
-            }, 4000));
-        }, 1500);
+                electron_1.app.relaunch();
+                electron_1.app.exit();
+            }, 6000));
+        }, 500);
     }
 }
 function stopKeepalive(port) {
@@ -271,6 +273,7 @@ function stopKeepalive(port) {
     clearInterval(port.keepaliveObject);
 }
 function msgEvent(port, msg) {
+    console.log(new Date().toDateString() + JSON.stringify(msg));
     if (msg == "alive\r") {
         port.keepaliveTimer.forEach(function (item) {
             clearTimeout(item);
@@ -278,6 +281,7 @@ function msgEvent(port, msg) {
         port.keepaliveTimer = [];
     }
     else if (msg == "OK\r") {
+        clearInterval(activePort.readySender);
         win.webContents.send('serialSendReadyReqR');
     }
     else if (msg.match(/code-([0-9]+)/) != null) {
@@ -287,6 +291,9 @@ function msgEvent(port, msg) {
 }
 function sendReadyReq() {
     activePort.portObject.write("ready\r");
+    activePort.readySender = setInterval(function () {
+        activePort.portObject.write("ready\r");
+    }, 300);
 }
 function sendImageToSave(file) {
     var buffer = dataUriToBuffer(file.img);
