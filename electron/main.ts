@@ -52,6 +52,7 @@ app.on('window-all-closed', () => {
 
 function createWindow() {
   win = new BrowserWindow({
+    icon: path.join(__dirname, 'assets/icon.ico'),
     width: 800,
     height: 640,
     minWidth: 640,

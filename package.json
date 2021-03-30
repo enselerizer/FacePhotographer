@@ -1,19 +1,47 @@
 {
   "name": "face-photographer",
-  "version": "0.0.0",
+  "displayName": "Face Photographer",
+  "version": "1.0.0",
+  "author": {
+    "name": "Александр Дергунов",
+    "email": "enselerizer@gmail.com"
+  },
   "main": "electron/dist/main.js",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e",
-    "rebuild": "electron-rebuild -f",
-    "e": "ng build --base-href ./ && tsc --p electron && electron .",
-
-    "ne": "tsc --p electron && electron .",
-    "e-build": "ng build --base-href ./ && tsc --p electron && electron-packager . face-photographer --prune=true --platform=win32 --arch=ia32 --overwrite --out=./package"
+    "start": "ng build --base-href ./ && tsc --p electron && electron .",
+    "start-nobuild": "tsc --p electron && electron .",
+    "rebuild": "electron-rebuild",
+    "dist": "electron-builder",
+    "build": "ng build --base-href ./ && tsc --p electron && electron-builder",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "enselerizer.face_photographer",
+    "productName": "Face Photographer",
+    "asar": false,
+    "buildDependenciesFromSource": true,
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}",
+      {
+        "from": "dist/FacePhotographer",
+        "to": "dist/FacePhotographer",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
   },
   "private": true,
   "dependencies": {
@@ -42,11 +70,10 @@
     "data-uri-to-buffer": "^3.0.1",
     "echarts": "^5.0.2",
     "electron-packager": "^15.2.0",
-    "electron-rebuild": "^2.3.5",
     "ngx-webcam": "^0.3.2",
     "node-sass": "^4.14.1",
     "rxjs": "~6.6.0",
-    "serialport": "^9.0.7",
+    "serialport": "^8.0.8",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2",
     "zrender": "^5.0.4"
@@ -59,7 +86,9 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^12.11.1",
     "codelyzer": "^6.0.0",
-    "electron": "^12.0.2",
+    "electron": "^11.4.1",
+    "electron-builder": "^22.10.5",
+    "electron-rebuild": "^2.3.5",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~6.3.1",

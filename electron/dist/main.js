@@ -102,6 +102,7 @@ electron_1.app.on('window-all-closed', function () {
 });
 function createWindow() {
     win = new electron_1.BrowserWindow({
+        icon: path.join(__dirname, 'assets/icon.ico'),
         width: 800,
         height: 640,
         minWidth: 640,
