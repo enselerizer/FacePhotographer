@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DataModelService } from 'dist/win-unpacked/resources/app/src/app/data-model.service';
+import { DataModelService } from '../data-model.service';
 
 @Component({
   selector: 'app-institute-page',
@@ -13,10 +13,17 @@ export class InstitutePageComponent implements OnInit {
 
   institutes = ['ИТ', 'КИБ']
 
+  data;
+
   constructor(private dm: DataModelService) { }
 
   ngOnInit(): void {
+    this.institutes = this.dm.getInstitutes();
+    this.selectedInstitute = this.dm.getSelectedInstitute();
+  }
 
+  changeInstitute() {
+    this.dm.setSelectedInstitute(this.selectedInstitute);
   }
 
 

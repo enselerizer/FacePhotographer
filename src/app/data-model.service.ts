@@ -15,6 +15,7 @@ const protoData = {
 
   ],
   selectedInstitute: null,
+  name: null,
   resolution: {
     width: 600,
     height: 800
@@ -63,6 +64,9 @@ export class DataModelService {
     }
     return this.data.getValue().selectedInstitute;
   }
+  getName() {
+    return this.data.getValue().name;
+  }
   setResolution(width, height) {
     const newData = this.data.getValue();
     newData.resolution = { width, height };
@@ -77,6 +81,11 @@ export class DataModelService {
   setSelectedInstitute(institute) {
     const newData = this.data.getValue();
     newData.selectedInstitute = institute;
+    this.data.next(newData);
+  } 
+  setName(name) {
+    const newData = this.data.getValue();
+    newData.name = name;
     this.data.next(newData);
   }
 
@@ -165,7 +174,7 @@ export class DataModelService {
 
   async saveImage(img) {
     return new Promise<void>((resolve, reject) => {
-      this.serial.sendImageToSave(img).then(() => {
+      this.serial.sendImageToSave(img, ' '+this.getSelectedInstitute()+(this.getName() == null ? '' : '-'+this.getName())).then(() => {
         resolve();
       });
     });

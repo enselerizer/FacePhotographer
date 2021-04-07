@@ -33,7 +33,6 @@ export class SetupPageComponent implements OnInit {
 
   ngOnInit(): void {
 
-
     this.dm.status.subscribe((status) => {
       this.status = status;
       // if (!status.devicesReady) {

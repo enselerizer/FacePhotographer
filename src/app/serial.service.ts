@@ -52,13 +52,13 @@ export class SerialService {
     });
   }
 
-  async sendImageToSave(img) {
+  async sendImageToSave(img, postfix) {
     
     return new Promise<void>((resolve, reject) => {
       electron.ipcRenderer.once('sendImageToSaveR', (event, arg) => {
         resolve();
       });
-      electron.ipcRenderer.send('sendImageToSave', {img, code: this.getCode()});
+      electron.ipcRenderer.send('sendImageToSave', {img, code: this.getCode()+postfix});
     });
   }
 

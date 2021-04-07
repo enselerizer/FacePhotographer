@@ -178,7 +178,7 @@ function openPort(portIndex, callback) {
           activePort.portParserLine.on('data', (msg) => {
             activePort.isPortReady = true;
 
-            let res = msg.match(/\#([a-zA-Z\ 0-9\_\-]+)/);
+            let res = msg.match(/\#([a-zA-Z\ 0-9\_\-\.]+)/);
             if (res != null) {
               callback({
                 sn: 'SN' + res[1],

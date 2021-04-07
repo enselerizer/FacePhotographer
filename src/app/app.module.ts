@@ -37,6 +37,9 @@ import { FormsModule } from '@angular/forms';
 import { InstitutePageComponent } from './institute-page/institute-page.component';
 import { NamePageComponent } from './name-page/name-page.component';
 import {MatRadioModule} from '@angular/material/radio';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FocusDirectiveDirective } from './focus-directive.directive';
 
 
 const appRoutes: Routes = [
@@ -47,6 +50,7 @@ const appRoutes: Routes = [
   { path: 'code', component: CodePageComponent},
   { path: 'edit', component: EditPageComponent},
   { path: 'instutute', component: InstitutePageComponent},  
+  { path: 'name', component: NamePageComponent},
 ];
 
 @NgModule({
@@ -59,7 +63,8 @@ const appRoutes: Routes = [
     SetupPageComponent,
     CodePageComponent,
     InstitutePageComponent,
-    NamePageComponent
+    NamePageComponent,
+    FocusDirectiveDirective
   ],
   imports: [
     BrowserModule,
@@ -85,7 +90,9 @@ const appRoutes: Routes = [
     MatProgressSpinnerModule,
     AngularCropperjsModule,
     MatSliderModule,
-    MatRadioModule
+    MatRadioModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,4 +1,9 @@
+import { Directive } from '@angular/core';
+import { Input } from '@angular/core';
+import { ElementRef } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { DataModelService } from '../data-model.service';
 
 @Component({
   selector: 'app-name-page',
@@ -7,9 +12,19 @@ import { Component, OnInit } from '@angular/core';
 })
 export class NamePageComponent implements OnInit {
 
-  constructor() { }
+  constructor(private router: Router, private dm: DataModelService) { }
+
+
+  name;
 
   ngOnInit(): void {
+
+  }
+
+  next() {
+    this.dm.setName(this.name);
+    this.router.navigateByUrl('/code');
   }
 
 }
+
