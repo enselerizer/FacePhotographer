@@ -63,6 +63,7 @@ export class SetupPageComponent implements OnInit {
       if (data.portsList.length > 0) {
         this.serialUI[0].value = false;
         this.serialUI[0].label = 'Считыватель найден!';
+        console.log(JSON.stringify(data));
         this.serialUI[0].sublabel = 'Порт ' + data.portsList[0].port + ', серийный номер: ' + data.portsList[0].sn;
       } else {
         this.serialUI[0].value = true;

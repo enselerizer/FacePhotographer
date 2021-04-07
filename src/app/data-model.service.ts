@@ -9,6 +9,12 @@ const protoData = {
   capturedImage: null,
   camerasList: [],
   portsList: [],
+  institutes: [
+    'ИТ',
+    'КИБ',
+
+  ],
+  selectedInstitute: null,
   resolution: {
     width: 600,
     height: 800
@@ -48,12 +54,32 @@ export class DataModelService {
   getResolution() {
     return this.data.getValue().resolution;
   }
+  getInstitutes() {
+    return this.data.getValue().institutes;
+  }
+  getSelectedInstitute() {
+    if (this.data.getValue().selectedInstitute == null) {
+      this.setSelectedInstitute(this.data.getValue().institutes[0]);
+    }
+    return this.data.getValue().selectedInstitute;
+  }
   setResolution(width, height) {
     const newData = this.data.getValue();
-    newData.resolution = {width, height};
+    newData.resolution = { width, height };
     this.data.next(newData);
     this.serial.writeResolution(height);
   }
+  setInstitutes(institutes) {
+    const newData = this.data.getValue();
+    newData.institutes = institutes;
+    this.data.next(newData);
+  }
+  setSelectedInstitute(institute) {
+    const newData = this.data.getValue();
+    newData.selectedInstitute = institute;
+    this.data.next(newData);
+  }
+
 
   setDevicesReady(devicesReady: boolean) {
     const newStatus = this.status.getValue();
@@ -94,10 +120,10 @@ export class DataModelService {
       this.initCamera().then(wait(1000)).then((cameras) => {
         this.setCamerasList(cameras);
         this.serial.init().then((data) => {
-          this.setResolution(data.height/4*3, data.height);
-          this.setPortsList([data.ports]);
+          this.setResolution(data.height / 4 * 3, data.height);
+          this.setPortsList([data.port]);
           this.setDevicesReady(true);
-          resolve({ cameras, ports: data.ports });
+          resolve({ cameras, ports: data.port });
         });
       });
     });
@@ -119,7 +145,7 @@ export class DataModelService {
       this.serial.init().then((data) => {
         this.setPortsList([data.ports]);
         this.setDevicesReady(true);
-        resolve({ ports:data.ports });
+        resolve({ ports: data.ports });
       });
     });
   }

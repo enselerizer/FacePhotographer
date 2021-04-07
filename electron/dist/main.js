@@ -205,7 +205,7 @@ function openPort(portIndex, callback) {
                     activePort.portParserLine = ports[portIndex].portObject.pipe(new Readline({ delimiter: '\n' }));
                     activePort.portParserLine.on('data', function (msg) {
                         activePort.isPortReady = true;
-                        var res = msg.match(/\#([0-9]+)/);
+                        var res = msg.match(/\#([a-zA-Z\ 0-9\_\-]+)/);
                         if (res != null) {
                             callback({
                                 sn: 'SN' + res[1],

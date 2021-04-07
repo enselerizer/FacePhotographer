@@ -34,6 +34,9 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { AngularCropperjsModule } from 'angular-cropperjs';
 import {MatSliderModule} from '@angular/material/slider';
 import { FormsModule } from '@angular/forms';
+import { InstitutePageComponent } from './institute-page/institute-page.component';
+import { NamePageComponent } from './name-page/name-page.component';
+import {MatRadioModule} from '@angular/material/radio';
 
 
 const appRoutes: Routes = [
@@ -42,7 +45,8 @@ const appRoutes: Routes = [
   { path: 'setup', component: SetupPageComponent},
   { path: 'capture', component: FaceCapturePageComponent},
   { path: 'code', component: CodePageComponent},
-  { path: 'edit', component: EditPageComponent}
+  { path: 'edit', component: EditPageComponent},
+  { path: 'instutute', component: InstitutePageComponent},  
 ];
 
 @NgModule({
@@ -53,7 +57,9 @@ const appRoutes: Routes = [
     FaceCapturePageComponent,
     EditPageComponent,
     SetupPageComponent,
-    CodePageComponent
+    CodePageComponent,
+    InstitutePageComponent,
+    NamePageComponent
   ],
   imports: [
     BrowserModule,
@@ -78,7 +84,8 @@ const appRoutes: Routes = [
     MatSnackBarModule,
     MatProgressSpinnerModule,
     AngularCropperjsModule,
-    MatSliderModule
+    MatSliderModule,
+    MatRadioModule
   ],
   providers: [],
   bootstrap: [AppComponent]
