@@ -19,6 +19,11 @@ export class SerialService {
 
   public serialStatus: BehaviorSubject<any> = new BehaviorSubject<any>(protoSerialStatus);
 
+
+  codeRep(code: String) : String {
+    return String(parseInt(this.getCode().substr(0,2), 16)).padStart(3, "0") + "," + String(parseInt(this.getCode().substr(2,4), 16)).padStart(5, "0");
+  }
+
   async init() {
     
     electron.ipcRenderer.removeAllListeners('serialConnectionLost');
@@ -58,7 +63,7 @@ export class SerialService {
       electron.ipcRenderer.once('sendImageToSaveR', (event, arg) => {
         resolve();
       });
-      electron.ipcRenderer.send('sendImageToSave', {img, code: this.getCode()+postfix});
+      electron.ipcRenderer.send('sendImageToSave', {img, code: this.codeRep(this.getCode())+postfix});
     });
   }
 

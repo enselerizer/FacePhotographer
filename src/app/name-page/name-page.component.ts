@@ -18,11 +18,11 @@ export class NamePageComponent implements OnInit {
   name;
 
   ngOnInit(): void {
-
+    this.name = '';
   }
 
   next() {
-    this.dm.setName(this.name);
+    this.dm.setName(this.name == '' ? null : this.name);
     this.router.navigateByUrl('/code');
   }
 

@@ -13,8 +13,13 @@
             <mat-card-content class="content">
                 <ng-template tdLoading [tdLoadingUntil]="!loading">
                     <div class="pad text-center">
-                        Обнаружен билет:<br>{{this.code}}
+                        <div class="code-img">
+                            <img src="assets/card.png">
+                            <div class="code-debug">{{this.code}}</div>
+                            <div class="code">{{this.codeRep()}}</div>
+                        </div>
                     </div>
+                    
                 </ng-template>
     
 
@@ -26,8 +31,9 @@
             </mat-card-content>
 
             <mat-card-actions *ngIf="this.code != null" class="actions">
+                <button routerLink="/name" mat-flat-button color="primary">Назад</button>
                 <button (click)="resetCode();" mat-flat-button color="primary">Заново</button>
-                <button routerLink="/capture" mat-flat-button color="accent">Подтвердить</button>
+                <button [focuMe]="true" (keypress.enter)="enter()" routerLink="/capture" mat-flat-button color="accent">Подтвердить</button>
             </mat-card-actions>
 
         </mat-card>

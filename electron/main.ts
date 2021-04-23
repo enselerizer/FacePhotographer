@@ -252,7 +252,7 @@ function beginKeepalive(port) {
 
       port.portObject.write("keepalive\r");
 
-      console.log(new Date().toDateString() + "Checking if reader is still alive...");
+      //console.log(new Date().toDateString() + "Checking if reader is still alive...");
       port.keepaliveTimer.push(setTimeout(() => {
         console.log("Reader not alive!");
         stopKeepalive(port);
@@ -281,9 +281,9 @@ function msgEvent(port, msg) {
   } else if (msg == "OK\r") {
     clearInterval(activePort.readySender);
     win.webContents.send('serialSendReadyReqR');
-  } else if (msg.match(/code-([0-9]+)/) != null) {
-    console.log(msg.match(/code-([0-9]+)/));
-    win.webContents.send('serialGotCode', msg.match(/code-([0-9]+)/)[1]);
+  } else if (msg.match(/code-([0-9A-F]+)/) != null) {
+    console.log(msg.match(/code-([0-9A-F]+)/));
+    win.webContents.send('serialGotCode', msg.match(/code-([0-9A-F]+)/)[1]);
   }
 }
 

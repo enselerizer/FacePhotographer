@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { DataModelService } from '../data-model.service';
 
@@ -9,7 +10,7 @@ import { DataModelService } from '../data-model.service';
 })
 export class CodePageComponent implements OnInit {
 
-  constructor(private dm: DataModelService, private cd: ChangeDetectorRef) { }
+  constructor(private dm: DataModelService, private cd: ChangeDetectorRef, private router: Router) { }
 
   code = null;
   loading = true;
@@ -34,5 +35,24 @@ export class CodePageComponent implements OnInit {
     
     this.getCode();
     this.loading = true;
+  }
+
+  enter() {
+    this.router.navigateByUrl("/capture");
+  }
+
+  codeRep() {
+    let res : String;
+    let codeInt : String;
+    let codeText : String;
+    if(this.code == null) {
+      res = "0000000000 000,00000";
+    } else {
+      codeInt = String(parseInt(this.code, 16)).padStart(10, "0");
+      console.log(this.code.substr(0,2) + "   " + this.code.substr(2,4) );
+      codeText = String(parseInt(this.code.substr(0,2), 16)).padStart(3, "0") + "," + String(parseInt(this.code.substr(2,4), 16)).padStart(5, "0");
+      res = codeInt + " " + codeText;
+    }
+    return res;
   }
 }

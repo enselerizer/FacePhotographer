@@ -54,7 +54,7 @@
 
             <mat-card-footer class="actions">
                 <button routerLink="/capture" mat-flat-button color="primary">Назад</button>
-                <button (click)="save()" mat-flat-button color="accent">Завершить</button>
+                <button [focuMe]="true" (keypress.enter)="save()" (click)="save()" mat-flat-button color="accent">Завершить</button>
             </mat-card-footer>
 
         </mat-card>

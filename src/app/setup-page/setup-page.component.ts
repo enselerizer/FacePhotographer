@@ -4,6 +4,7 @@ import {
   MatSnackBarHorizontalPosition,
   MatSnackBarVerticalPosition,
 } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { DataModelService } from '../data-model.service';
 
 @Component({
@@ -13,7 +14,7 @@ import { DataModelService } from '../data-model.service';
 })
 export class SetupPageComponent implements OnInit {
 
-  constructor(private dm: DataModelService, private cd: ChangeDetectorRef, private _snackBar: MatSnackBar) { }
+  constructor(private dm: DataModelService, private cd: ChangeDetectorRef, private _snackBar: MatSnackBar, private router: Router) { }
 
   cameraUI: any[] = [
     { label: 'Поиск камеры...', sublabel: '', value: true, icon: 'camera_enhance' },
@@ -30,6 +31,8 @@ export class SetupPageComponent implements OnInit {
   data;
   status;
   sliderValue = 200;
+  lastValue;
+  fullres = false;
 
   ngOnInit(): void {
 
@@ -82,4 +85,20 @@ export class SetupPageComponent implements OnInit {
   onChange(newVal) {
     this.dm.setResolution(newVal/4*3, newVal);
   }
+
+  onFullresChange() {
+    if(this.fullres) {
+      this.lastValue = this.sliderValue;
+      this.dm.setResolution(0,0);
+    } else {
+
+        this.dm.setResolution(this.lastValue/4*3, this.lastValue);
+      
+    }
+  }
+
+  enter() {
+    this.router.navigateByUrl("/institute");
+  }
+
 }

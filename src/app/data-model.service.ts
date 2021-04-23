@@ -10,9 +10,13 @@ const protoData = {
   camerasList: [],
   portsList: [],
   institutes: [
-    'ИТ',
+    'ИИТ',
     'КИБ',
-
+    'ИКБСП',
+    'ИТХТ',
+    'РТС',
+    'ФТИ',
+    'ИНТЕГУ/ИЭП'
   ],
   selectedInstitute: null,
   name: null,
@@ -38,7 +42,7 @@ export class DataModelService {
   constructor(private serial: SerialService, private router: Router, private zone: NgZone) { }
 
   optainCapturedImage(img) {
-    const newData = Object.create(protoData);
+    const newData = this.data.getValue();
     newData.capturedImage = img;
     this.data.next(newData);
   }
@@ -53,7 +57,7 @@ export class DataModelService {
     return this.status.getValue().isInitDone;
   }
   getResolution() {
-    return this.data.getValue().resolution;
+    return this.data.getValue().resolution.width == 0 ? {} : this.data.getValue().resolution;
   }
   getInstitutes() {
     return this.data.getValue().institutes;
@@ -84,6 +88,7 @@ export class DataModelService {
     this.data.next(newData);
   } 
   setName(name) {
+    console.log(name);
     const newData = this.data.getValue();
     newData.name = name;
     this.data.next(newData);

@@ -15,6 +15,10 @@ export class StartPageComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  enter() {
+    this.router.navigateByUrl("/name");
+  }
+
 
 
 }

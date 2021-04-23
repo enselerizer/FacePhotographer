@@ -17,8 +17,8 @@ export class CameraStreamComponent implements OnInit {
   public multipleWebcamsAvailable = false;
   public deviceId: string;
   public videoOptions: MediaTrackConstraints = {
-     width: {ideal: 1920},
-     height: {ideal: 1080},
+     width: {ideal: 2560},
+     height: {ideal: 1440},
     noiseSuppression: false,
     frameRate: 60
   };

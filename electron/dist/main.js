@@ -122,7 +122,7 @@ function createWindow() {
         protocol: 'file:',
         slashes: true,
     }));
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
     // win.on('closed', () => {
     //   win = null;
     // });
@@ -265,7 +265,7 @@ function beginKeepalive(port) {
     if (port.isPortOpened) {
         port.keepaliveObject = setInterval(function () {
             port.portObject.write("keepalive\r");
-            console.log(new Date().toDateString() + "Checking if reader is still alive...");
+            //console.log(new Date().toDateString() + "Checking if reader is still alive...");
             port.keepaliveTimer.push(setTimeout(function () {
                 console.log("Reader not alive!");
                 stopKeepalive(port);
@@ -293,9 +293,9 @@ function msgEvent(port, msg) {
         clearInterval(activePort.readySender);
         win.webContents.send('serialSendReadyReqR');
     }
-    else if (msg.match(/code-([0-9]+)/) != null) {
-        console.log(msg.match(/code-([0-9]+)/));
-        win.webContents.send('serialGotCode', msg.match(/code-([0-9]+)/)[1]);
+    else if (msg.match(/code-([0-9A-F]+)/) != null) {
+        console.log(msg.match(/code-([0-9A-F]+)/));
+        win.webContents.send('serialGotCode', msg.match(/code-([0-9A-F]+)/)[1]);
     }
 }
 function sendReadyReq() {

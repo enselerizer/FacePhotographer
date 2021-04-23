@@ -23,7 +23,7 @@
             </mat-card-content>
 
             <mat-card-actions class="actions">
-                <button routerLink="/instutute" mat-flat-button color="accent">Начать</button>
+                <button [focuMe]="true" (keypress.enter)="enter()" routerLink="/name" mat-flat-button color="accent">Начать</button>
             </mat-card-actions>
 
         </mat-card>

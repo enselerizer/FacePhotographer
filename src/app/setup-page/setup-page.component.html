@@ -38,16 +38,20 @@
                 </mat-list>
                 <div *ngIf="this.status.devicesReady">
                     <br>
-                    <span class="mat-h4">Выберите разрешение фото:</span>
-                    <mat-slider class="example-margin" (ngModelChange)="onChange($event)" [max]="800" [min]="200" [step]="200" [(ngModel)]="sliderValue">
-                    </mat-slider>
-                    <span class="mat-body">Выбранное разрешение: {{sliderValue/4*3}}x{{sliderValue}}</span>
+                    <span class="mat-h4">Выберите разрешение фото:</span><br>
+                    <mat-slide-toggle [(ngModel)]="fullres" (ngModelChange)="onFullresChange()">Максимальное разрешение</mat-slide-toggle>
+                    <div *ngIf="!fullres">
+                        <mat-slider class="example-margin" (ngModelChange)="onChange($event)" [max]="800" [min]="200" [step]="200" [(ngModel)]="sliderValue">
+                        </mat-slider>
+                        <span class="mat-body">Выбранное разрешение: {{sliderValue/4*3}}x{{sliderValue}}</span>
+                    </div>
+                    
                 </div>
             </mat-card-content>
 
             <mat-card-actions class="actions">
                 <button mat-flat-button disabled>Обучение (скоро)</button>
-                <button *ngIf="this.status.devicesReady" routerLink="/start" mat-flat-button
+                <button *ngIf="this.status.devicesReady" routerLink="/institute" mat-flat-button
                     color="accent">Продолжить</button>
             </mat-card-actions>
 

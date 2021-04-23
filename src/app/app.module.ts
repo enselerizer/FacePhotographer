@@ -40,6 +40,7 @@ import {MatRadioModule} from '@angular/material/radio';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FocusDirectiveDirective } from './focus-directive.directive';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 
 const appRoutes: Routes = [
@@ -49,7 +50,7 @@ const appRoutes: Routes = [
   { path: 'capture', component: FaceCapturePageComponent},
   { path: 'code', component: CodePageComponent},
   { path: 'edit', component: EditPageComponent},
-  { path: 'instutute', component: InstitutePageComponent},  
+  { path: 'institute', component: InstitutePageComponent},  
   { path: 'name', component: NamePageComponent},
 ];
 
@@ -92,7 +93,8 @@ const appRoutes: Routes = [
     MatSliderModule,
     MatRadioModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatSlideToggleModule
   ],
   providers: [],
   bootstrap: [AppComponent]

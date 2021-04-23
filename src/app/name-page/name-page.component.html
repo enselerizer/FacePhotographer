@@ -18,7 +18,7 @@
 <div class="input">
     <mat-form-field appearance="outline">
         <mat-label>Фамилия студента</mat-label>
-        <input matInput placeholder="" [(ngModel)]="name" [focuMe]="true">
+        <input matInput placeholder="" [(ngModel)]="name" (keydown.enter)="next()" [focuMe]="true">
         <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
       </mat-form-field>
 </div>
@@ -26,6 +26,7 @@
             </mat-card-content>
 
             <mat-card-actions class="actions">
+                <button routerLink="/start" mat-flat-button color="primary">Назад</button>
                 <button (click)="next()" mat-flat-button color="accent">Далее</button>
             </mat-card-actions>
 
