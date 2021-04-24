@@ -41,6 +41,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FocusDirectiveDirective } from './focus-directive.directive';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { IpCapturePageComponent } from './ip-capture-page/ip-capture-page.component';
 
 
 const appRoutes: Routes = [
@@ -48,6 +49,7 @@ const appRoutes: Routes = [
   { path: 'start', component: StartPageComponent},
   { path: 'setup', component: SetupPageComponent},
   { path: 'capture', component: FaceCapturePageComponent},
+  { path: 'capture-ip', component: IpCapturePageComponent},
   { path: 'code', component: CodePageComponent},
   { path: 'edit', component: EditPageComponent},
   { path: 'institute', component: InstitutePageComponent},  
@@ -65,7 +67,8 @@ const appRoutes: Routes = [
     CodePageComponent,
     InstitutePageComponent,
     NamePageComponent,
-    FocusDirectiveDirective
+    FocusDirectiveDirective,
+    IpCapturePageComponent
   ],
   imports: [
     BrowserModule,

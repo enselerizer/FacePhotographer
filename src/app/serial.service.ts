@@ -1,5 +1,5 @@
 
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 const electron = (<any>window).require('electron');
 
@@ -13,7 +13,7 @@ const protoSerialStatus = {
 })
 export class SerialService {
 
-  constructor() { }
+  constructor(private zone: NgZone) { }
 
   public code: BehaviorSubject<String> = new BehaviorSubject<String>("");
 
@@ -30,22 +30,36 @@ export class SerialService {
 
 
     electron.ipcRenderer.on('serialConnectionLost', (event, port) => {
-      this.setIsDeviceActive(false);
+      this.zone.run(() => {
+        this.setIsDeviceActive(false);
+      });
     });
     
     return new Promise<any>((resolve, reject) => {
       electron.ipcRenderer.once('serialConnectR', (event, port) => {
-        console.log(port);
-        this.setIsDeviceActive(true);
-        this.readResolution().then((height) => {
-          resolve({port, height});
+        this.zone.run(() => {
+          this.setIsDeviceActive(true);
         });
+        console.log(port);
+        resolve({port});
         
       });
       electron.ipcRenderer.send('serialConnect');
     });
     
   }
+
+
+  runDirSelector() {
+    return new Promise<string>((resolve, reject) => {
+      electron.ipcRenderer.once('selectDirR', (event, arg) => {
+        resolve(arg[0]);
+      });
+      electron.ipcRenderer.send('selectDir');
+    });
+  }
+
+  
 
   async sendReadyReq() {
     
@@ -57,13 +71,13 @@ export class SerialService {
     });
   }
 
-  async sendImageToSave(img, postfix) {
+  async sendImageToSave(img, cloudPath, postfix) {
     
     return new Promise<void>((resolve, reject) => {
       electron.ipcRenderer.once('sendImageToSaveR', (event, arg) => {
         resolve();
       });
-      electron.ipcRenderer.send('sendImageToSave', {img, code: this.codeRep(this.getCode())+postfix});
+      electron.ipcRenderer.send('sendImageToSave', {img, cloudPath, code: this.codeRep(this.getCode())+postfix});
     });
   }
 
@@ -89,24 +103,6 @@ export class SerialService {
   }
   getCode() {
     return this.code.getValue();
-  }
-
-  async readResolution() {
-    
-    return new Promise<Number>((resolve, reject) => {
-      electron.ipcRenderer.once('gotResolution', (event, height) => {
-        resolve(Number(height));
-      });
-      electron.ipcRenderer.send('readResolution');
-    });
-  }
-
-  async writeResolution(height) {
-    
-    return new Promise<void>((resolve, reject) => {
-      electron.ipcRenderer.send('writeResolution', ''+height);
-      resolve();
-    });
   }
 
 }

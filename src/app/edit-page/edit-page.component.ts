@@ -3,6 +3,7 @@ import { WebcamImage } from 'ngx-webcam';
 import { DataModelService } from '../data-model.service';
 import { CropperComponent } from 'angular-cropperjs';
 import { Router } from '@angular/router';
+import { StreamService } from '../stream.service';
 
 
 @Component({
@@ -12,7 +13,7 @@ import { Router } from '@angular/router';
 })
 export class EditPageComponent implements OnInit {
 
-  constructor(private dm: DataModelService, private cd: ChangeDetectorRef, private router: Router) { }
+  constructor(private dm: DataModelService, private cd: ChangeDetectorRef, private router: Router, private streamer: StreamService) { }
 
   @ViewChild(CropperComponent) public angularCropper: CropperComponent;
 
@@ -22,7 +23,7 @@ export class EditPageComponent implements OnInit {
     preview: '.preview'
   }
 
-  img: WebcamImage;
+  img;
 
 
 
@@ -31,9 +32,21 @@ export class EditPageComponent implements OnInit {
   }
 
   save() {
-    const canvas = this.angularCropper.cropper.getCroppedCanvas(this.dm.getResolution());
+    const canvas = this.angularCropper.cropper.getCroppedCanvas();
     this.dm.saveImage(canvas.toDataURL("image/png"));
+    if(this.dm.getWebcamId() == 'ipcam') {
+      this.streamer.closeStream();
+    }
     this.router.navigateByUrl("/start");
+  }
+
+  enter() {
+    if(this.dm.getWebcamId() == 'ipcam') {
+      this.streamer.openStream();
+      this.router.navigateByUrl("/capture-ip");
+    } else {
+      this.router.navigateByUrl("/capture");
+    }
   }
 
 }

@@ -8,9 +8,15 @@ import * as serial from 'serialport';
 
 const Ready = require('@serialport/parser-ready')
 const Readline = require('@serialport/parser-readline')
-var dataUriToBuffer = require('data-uri-to-buffer');
+const dataUriToBuffer = require('data-uri-to-buffer');
+const Stream = require('node-rtsp-stream');
+const ffmpegPath = require('ffmpeg-static');
+const sharp = require('sharp');
+const ping = require('ping');
 
 let win: BrowserWindow;
+let stream;
+let cameraHost = "192.168.1.200";
 
 const tempFolder = __dirname + '\\temp';
 
@@ -22,6 +28,27 @@ async function asyncForEach(array, callback) {
     await callback(array[index], index, array);
   }
 }
+
+
+function openStream() {
+  stream = new Stream({
+
+    name: 'name',
+    streamUrl: 'rtsp://admin:ADminium-12@192.168.1.200:554/ISAPI/Streaming/Channels/101',
+    wsPort: 9999,
+    ffmpegPath: ffmpegPath,
+    ffmpegOptions: {
+      '-b:v': '10000k'
+    }
+
+  });
+}
+
+function closeStream() {
+  stream.stop();
+}
+
+
 
 app.on('ready', async () => {
   rimraf.sync(tempFolder);
@@ -112,12 +139,27 @@ function createWindow() {
     sendImageToSave(arg);
   });
 
-  ipcMain.on('readResolution', (event, arg) => {
-    readResolution();
+  ipcMain.on('openStream', (event, arg) => {
+    openStream();
+  });
+  ipcMain.on('closeStream', (event, arg) => {
+    closeStream();
   });
 
-  ipcMain.on('writeResolution', (event, height) => {
-    writeResolution(height, () => { });
+  ipcMain.on('selectDir', async (event, arg) => {
+    const result = await dialog.showOpenDialog(win, {
+      properties: ['openDirectory']
+    })
+    win.webContents.send('selectDirR', result.filePaths);
+  })
+
+
+  ipcMain.on('pingCamera', (event, arg) => {
+    pingCamera(arg);
+  });
+
+  ipcMain.on('enableCamera', (event, arg) => {
+    beginCameraKeepalive(cameraHost);
   });
 }
 
@@ -295,44 +337,164 @@ function sendReadyReq() {
 
 }
 
-function sendImageToSave(file) {
+async function sendImageToSave(file) {
   let buffer = dataUriToBuffer(file.img);
+
+  //make sure that all dirs exist
+
   if (!fs.existsSync("C://mirea-faces/")) {
     fs.mkdirSync("C://mirea-faces/");
   }
-  fs.writeFile("C://mirea-faces/" + file.code + ".png", buffer, (err) => {
-    if (err) return console.error(err)
-  })
 
-}
+  if (!fs.existsSync("C://mirea-faces/output/")) {
+    fs.mkdirSync("C://mirea-faces/output/");
+  }
 
-function writeResolution(height, callback) {
-  fs.writeFile('res-config.txt', height, { flag: 'w' }, (err) => {
-    if (err) {
-      console.error(err)
-      return
+  if (!fs.existsSync("C://mirea-faces/output/originals/")) {
+    fs.mkdirSync("C://mirea-faces/output/originals/");
+  }
+
+  if (!fs.existsSync("C://mirea-faces/output/compressed-450x600/")) {
+    fs.mkdirSync("C://mirea-faces/output/compressed-450x600/");
+  }
+
+  if (!fs.existsSync("C://mirea-faces/output/compressed-150x200/")) {
+    fs.mkdirSync("C://mirea-faces/output/compressed-150x200/");
+  }
+
+  if (file.cloudPath != null) {
+    if (!fs.existsSync(file.cloudPath + "/mirea-faces/")) {
+      fs.mkdirSync(file.cloudPath + "/mirea-faces/");
     }
-    callback();
-  })
-}
 
-function readResolution() {
+    if (!fs.existsSync(file.cloudPath + "/mirea-faces/output/")) {
+      fs.mkdirSync(file.cloudPath + "/mirea-faces/output/");
+    }
 
-  if (fs.existsSync("res-config.txt")) {
-    fs.readFile('res-config.txt', "utf8", (err, data) => {
-      if (err) {
-        console.log(err);
-      } else {
-        win.webContents.send('gotResolution', data);
-        console.log(data);
-      }
-  
-    })
-  } else {
-    writeResolution("800", () => {
-      win.webContents.send('gotResolution', "800");
+    if (!fs.existsSync(file.cloudPath + "/mirea-faces/output/originals/")) {
+      fs.mkdirSync(file.cloudPath + "/mirea-faces/output/originals/");
+    }
+
+    if (!fs.existsSync(file.cloudPath + "/mirea-faces/output/compressed-450x600/")) {
+      fs.mkdirSync(file.cloudPath + "/mirea-faces/output/compressed-450x600/");
+    }
+
+    if (!fs.existsSync(file.cloudPath + "/mirea-faces/output/compressed-150x200/")) {
+      fs.mkdirSync(file.cloudPath + "/mirea-faces/output/compressed-150x200/");
+    }
+  }
+
+  //save original
+
+  fs.writeFile("C://mirea-faces/output/originals/" + file.code + ".png", buffer, (err) => {
+    if (err) return console.error(err)
+  });
+  if (file.cloudPath != null) {
+    fs.writeFile(file.cloudPath + "/mirea-faces/output/originals/" + file.code + ".png", buffer, (err) => {
+      if (err) return console.error(err)
     });
   }
 
+  // cyclic save compressed
+
+  let q = 100;
+  let dir = false;
+  let changer = 64;
+  let lastQ = -100;
+  let cyclicBuffer;
+
+  while (true) {
+    while (true) {
+
+      let br = false;
+      console.log("Currently trying q = " + q + ", dir " + dir + ", changer " + changer);
+
+      await sharp(buffer)
+        .resize({ width: 450, height: 600 })
+        .jpeg({ mozjpeg: true, quality: q })
+        .toBuffer({ resolveWithObject: true })
+        .then(({ data, info }) => {
+          if (dir ? (Buffer.byteLength(data.buffer) / 1024 < 50) : (Buffer.byteLength(data.buffer) / 1024 > 50)) {
+            q = dir ? Math.max(Math.min(q + changer, 100), 1) : Math.max(Math.min(Math.floor(q - changer), 100), 1);
+          } else {
+            cyclicBuffer = data;
+            br = true;
+            changer = Math.ceil(changer / 2);
+          }
+        });
+      if (br) {
+        break;
+      }
+    }
+    if (Math.abs(q - lastQ) < 2) {
+      sharp(buffer)
+        .resize({ width: 450, height: 600 })
+        .jpeg({ mozjpeg: true, quality: Math.max(q - 1, 1) })
+        .toBuffer({ resolveWithObject: true })
+        .then(({ data, info }) => {
+          fs.writeFile("C://mirea-faces/output/compressed-450x600/" + file.code + ".jpg", data, (err) => {
+            if (err) return console.error(err)
+          });
+          sharp(buffer)
+            .resize({ width: 150, height: 200 })
+            .jpeg({ mozjpeg: true, quality: Math.max(q - 1, 1) })
+            .toBuffer({ resolveWithObject: true })
+            .then(({ data, info }) => {
+              fs.writeFile("C://mirea-faces/output/compressed-150x200/" + file.code + ".jpg", data, (err) => {
+                if (err) return console.error(err)
+              });
+            });
+        });
+
+      if (file.cloudPath != null) {
+        sharp(buffer)
+          .resize({ width: 450, height: 600 })
+          .jpeg({ mozjpeg: true, quality: Math.max(q - 1, 1) })
+          .toBuffer({ resolveWithObject: true })
+          .then(({ data, info }) => {
+            fs.writeFile(file.cloudPath + "/mirea-faces/output/compressed-450x600/" + file.code + ".jpg", data, (err) => {
+              if (err) return console.error(err)
+            });
+            sharp(buffer)
+              .resize({ width: 150, height: 200 })
+              .jpeg({ mozjpeg: true, quality: Math.max(q - 1, 1) })
+              .toBuffer({ resolveWithObject: true })
+              .then(({ data, info }) => {
+                fs.writeFile(file.cloudPath + "/mirea-faces/output/compressed-150x200/" + file.code + ".jpg", data, (err) => {
+                  if (err) return console.error(err)
+                });
+              });
+          });
+      }
+      break;
+    } else {
+      lastQ = q;
+      dir = !dir;
+    }
+  }
+}
+
+
+
+function pingCamera(host) {
+      ping.sys.probe(host, (isAlive) => {
+        cameraHost = host;
+        win.webContents.send('pingCameraR', isAlive);
+      });
+}
+
+function beginCameraKeepalive(host) {
+
+    setInterval(() => {
+
+      ping.sys.probe(host, (isAlive) => {
+        if(!isAlive) {
+          app.relaunch();
+          app.exit();
+        } 
+      });
+
+
+    }, 1000);
   
 }

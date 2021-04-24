@@ -1,7 +1,7 @@
 {
   "name": "face-photographer",
   "displayName": "Face Photographer",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "author": {
     "name": "Александр Дергунов",
     "email": "enselerizer@gmail.com"
@@ -63,17 +63,23 @@
     "@covalent/highlight": "^3.1.0",
     "@covalent/http": "^3.1.0",
     "@covalent/markdown": "^3.1.0",
+    "@mdi/font": "^5.9.55",
     "@types/echarts": "^4.9.6",
     "@types/zrender": "^4.0.0",
     "angular-cropperjs": "^1.0.2",
     "cropperjs": "^1.5.11",
     "data-uri-to-buffer": "^3.0.1",
+    "data-urls": "^2.0.0",
     "echarts": "^5.0.2",
     "electron-packager": "^15.2.0",
+    "ffmpeg-static": "^4.3.0",
     "ngx-webcam": "^0.3.2",
+    "node-rtsp-stream": "0.0.9",
     "node-sass": "^4.14.1",
+    "ping": "^0.4.1",
     "rxjs": "~6.6.0",
     "serialport": "^8.0.8",
+    "sharp": "^0.28.1",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2",
     "zrender": "^5.0.4"

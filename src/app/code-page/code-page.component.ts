@@ -38,7 +38,12 @@ export class CodePageComponent implements OnInit {
   }
 
   enter() {
-    this.router.navigateByUrl("/capture");
+    if(this.dm.getWebcamId() == 'ipcam') {
+      this.router.navigateByUrl("/capture-ip");
+    } else {
+      this.router.navigateByUrl("/capture");
+    }
+    
   }
 
   codeRep() {

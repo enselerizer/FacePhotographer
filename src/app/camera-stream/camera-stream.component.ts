@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { WebcamImage, WebcamInitError, WebcamUtil } from 'ngx-webcam';
 import { Subject, Observable } from 'rxjs';
+import { DataModelService } from '../data-model.service';
 
 @Component({
   selector: 'app-camera-stream',
@@ -9,11 +10,13 @@ import { Subject, Observable } from 'rxjs';
 })
 export class CameraStreamComponent implements OnInit {
 
+  constructor(private dm: DataModelService) {}
+
   @Output()
   public pictureTaken = new EventEmitter<WebcamImage>();
   // toggle webcam on/off
   public showWebcam = true;
-  public allowCameraSwitch = true;
+  public allowCameraSwitch = false;
   public multipleWebcamsAvailable = false;
   public deviceId: string;
   public videoOptions: MediaTrackConstraints = {
@@ -31,6 +34,7 @@ export class CameraStreamComponent implements OnInit {
     WebcamUtil.getAvailableVideoInputs()
       .then((mediaDevices: MediaDeviceInfo[]) => {
         this.multipleWebcamsAvailable = mediaDevices && mediaDevices.length > 1;
+        this.showNextWebcam(this.dm.getWebcamId());
       });
   }
   public triggerSnapshot(): void {

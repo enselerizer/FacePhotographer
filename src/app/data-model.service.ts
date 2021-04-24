@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { SerialService } from './serial.service';
 import { first, take } from 'rxjs/operators';
 import { Router } from '@angular/router';
+const electron = (<any>window).require('electron');
 
 const protoData = {
   capturedImage: null,
@@ -20,10 +21,8 @@ const protoData = {
   ],
   selectedInstitute: null,
   name: null,
-  resolution: {
-    width: 600,
-    height: 800
-  }
+  dirPath: null,
+  webcamId: null
 };
 const protoStatus = {
   devicesReady: false,
@@ -47,6 +46,19 @@ export class DataModelService {
     this.data.next(newData);
   }
 
+  selectDir() {
+    return new Promise<void>((resolve, reject) => {
+      this.serial.runDirSelector().then((dir) => {
+        if(dir != undefined) {
+          this.setDir(dir);
+        } else {
+          this.setDir(null);
+        }
+        resolve();
+      });
+    });
+  }
+
   getCapturedImage(): WebcamImage {
     return this.data.getValue().capturedImage;
   }
@@ -55,9 +67,6 @@ export class DataModelService {
   }
   getIsInitDone() {
     return this.status.getValue().isInitDone;
-  }
-  getResolution() {
-    return this.data.getValue().resolution.width == 0 ? {} : this.data.getValue().resolution;
   }
   getInstitutes() {
     return this.data.getValue().institutes;
@@ -71,12 +80,21 @@ export class DataModelService {
   getName() {
     return this.data.getValue().name;
   }
-  setResolution(width, height) {
-    const newData = this.data.getValue();
-    newData.resolution = { width, height };
-    this.data.next(newData);
-    this.serial.writeResolution(height);
+
+  getDir() {
+    return this.data.getValue().dirPath;
   }
+
+  getWebcamId() {
+    return this.data.getValue().webcamId;
+  }
+
+  setWebcamId(webcamId) {
+    const newData = this.data.getValue();
+    newData.webcamId = webcamId;
+    this.data.next(newData);
+  }
+
   setInstitutes(institutes) {
     const newData = this.data.getValue();
     newData.institutes = institutes;
@@ -85,6 +103,12 @@ export class DataModelService {
   setSelectedInstitute(institute) {
     const newData = this.data.getValue();
     newData.selectedInstitute = institute;
+    this.data.next(newData);
+  } 
+  setDir(dirPath) {
+    const newData = this.data.getValue();
+    console.log(dirPath);
+    newData.dirPath = dirPath;
     this.data.next(newData);
   } 
   setName(name) {
@@ -134,7 +158,6 @@ export class DataModelService {
       this.initCamera().then(wait(1000)).then((cameras) => {
         this.setCamerasList(cameras);
         this.serial.init().then((data) => {
-          this.setResolution(data.height / 4 * 3, data.height);
           this.setPortsList([data.port]);
           this.setDevicesReady(true);
           resolve({ cameras, ports: data.port });
@@ -179,7 +202,7 @@ export class DataModelService {
 
   async saveImage(img) {
     return new Promise<void>((resolve, reject) => {
-      this.serial.sendImageToSave(img, ' '+this.getSelectedInstitute()+(this.getName() == null ? '' : '-'+this.getName())).then(() => {
+      this.serial.sendImageToSave(img, this.getDir(), ' '+this.getSelectedInstitute()+(this.getName() == null ? '' : '-'+this.getName())).then(() => {
         resolve();
       });
     });

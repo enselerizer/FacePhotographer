@@ -13,20 +13,21 @@
             <mat-card-content class="content">
 
                 <div class="stream">
-                    <app-camera-stream (pictureTaken)="handleImage($event)"></app-camera-stream>
+                    <canvas  id="video"></canvas>
                 </div>
 
                 <div style="margin-top: 16px;">
-                    Активирована веб-камера. Для удачного снимка голова студента должна оказаться внутри зеленой рамки.
+                    Активирована IP-камера. Для удачного снимка голова студента должна оказаться внутри зеленой рамки.
                 </div>
+
+                
 
 
             </mat-card-content>
 
             <mat-card-actions class="actions">
-                <button routerLink="/code" mat-flat-button color="primary">Назад</button>
-                <button (keypress.enter)="capture()" (click)="capture()" mat-flat-button
-                    color="accent">Захватить</button>
+                <button (click)="enter()" mat-flat-button color="primary">Назад</button>
+                <button [focuMe]="true" (click)="handleImage()" mat-flat-button color="accent">Захватить</button>
             </mat-card-actions>
 
         </mat-card>

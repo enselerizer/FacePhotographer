@@ -11,9 +11,15 @@
             </mat-card-title>
 
             <mat-card-content>
+                <span class="mat-h4">Камеры:</span><br>
                 <mat-list>
+                    <mat-divider></mat-divider>
                     <ng-template let-item let-last="last" ngFor [ngForOf]="cameraUI">
                         <mat-list-item>
+                            <div *ngIf="!item.value" class="check-btn">
+                                    <button (click)="this.setWebcam(item.deviceId)" *ngIf="item.deviceId != data.webcamId" mat-flat-button color="primary">Выбрать</button>
+                                    <button *ngIf="item.deviceId == data.webcamId" disabled mat-flat-button color="primary">Выбрано</button>
+                            </div>
                             <div matListAvatar>
                                 <ng-template tdLoading [tdLoadingUntil]="!item.value" tdLoadingStrategy="overlay">
                                     <mat-icon matListAvatar>{{item.icon}}</mat-icon>
@@ -23,6 +29,29 @@
                         </mat-list-item>
                         <mat-divider *ngIf="!last"></mat-divider>
                     </ng-template>
+                    <mat-divider></mat-divider>
+                    <mat-list-item >
+                        <div *ngIf="!cameraPending && cameraAvailable" class="check-btn">
+                            <button  (click)="this.setWebcam('ipcam')" *ngIf="'ipcam' != data.webcamId" mat-flat-button color="primary">Выбрать</button>
+                            <button *ngIf="'ipcam' == data.webcamId" disabled mat-flat-button color="primary">Выбрано</button>
+                        </div>
+                        <div *ngIf="!cameraPending && !cameraAvailable" class="check-btn">
+                            <button  (click)="this.pingCamera()" *ngIf="!cameraPending" mat-flat-button color="accent">Обновить</button>
+                        </div>
+                        <div matListAvatar>
+                            <ng-template tdLoading [tdLoadingUntil]="cameraAvailable" tdLoadingStrategy="overlay">
+                                <mat-icon svgIcon="ipcam" matListAvatar></mat-icon>
+                            </ng-template>
+                        </div>
+                        <h3 *ngIf="cameraPending" matLine>Поиск IP-камеры... <span class="mat-body"><br></span></h3>
+                        <h3 *ngIf="!cameraPending && cameraAvailable" matLine>IP-камера <span class="mat-body"><br>Камера подключена и готова к работе</span></h3>
+                        <h3 *ngIf="!cameraPending && !cameraAvailable" matLine>IP-камера не найдена <span class="mat-body"><br>Убедитесь, что IP-камера включена и доступна по сети</span></h3>
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+                </mat-list>
+                <br>
+                <span class="mat-h4">Считыватели:</span><br>
+                <mat-list>
                     <mat-divider></mat-divider>
                     <ng-template let-item let-last="last" ngFor [ngForOf]="serialUI">
                         <mat-list-item>
@@ -35,24 +64,38 @@
                         </mat-list-item>
                         <mat-divider *ngIf="!last"></mat-divider>
                     </ng-template>
+                    <mat-divider></mat-divider>
                 </mat-list>
+
+
                 <div *ngIf="this.status.devicesReady">
                     <br>
-                    <span class="mat-h4">Выберите разрешение фото:</span><br>
-                    <mat-slide-toggle [(ngModel)]="fullres" (ngModelChange)="onFullresChange()">Максимальное разрешение</mat-slide-toggle>
-                    <div *ngIf="!fullres">
-                        <mat-slider class="example-margin" (ngModelChange)="onChange($event)" [max]="800" [min]="200" [step]="200" [(ngModel)]="sliderValue">
-                        </mat-slider>
-                        <span class="mat-body">Выбранное разрешение: {{sliderValue/4*3}}x{{sliderValue}}</span>
+                    <mat-slide-toggle (ngModelChange)="toggle()" [(ngModel)]="cloudCopy">Дублировать фото в облачную папку</mat-slide-toggle>
+                    <br>
+                    <div *ngIf="cloudCopy" class="seldir">
+                        <input style="flex-grow: 1;" matInput disabled [value]="data.dirPath">
+                        <button *ngIf="!cloudCopyPending" (click)="selectDir()" mat-flat-button color="accent">Выбрать папку</button>
+                        <button *ngIf="cloudCopyPending" disabled mat-flat-button color="accent">Выбор папки...</button>
+                        
                     </div>
                     
+                        
+                    
+                    
+
+
                 </div>
             </mat-card-content>
 
             <mat-card-actions class="actions">
-                <button mat-flat-button disabled>Обучение (скоро)</button>
-                <button *ngIf="this.status.devicesReady" routerLink="/institute" mat-flat-button
-                    color="accent">Продолжить</button>
+                <button *ngIf="!this.status.devicesReady" mat-flat-button disabled>Дождитесь определения
+                    устройств</button>
+                <button *ngIf="this.status.devicesReady && this.data.webcamId != null && !(cloudCopy && data.dirPath == null)" (click)="enter()"
+                    mat-flat-button color="accent">Продолжить</button>
+                <button *ngIf="this.status.devicesReady && this.data.webcamId == null" mat-flat-button disabled>Выберите
+                    камеру</button>
+                <button *ngIf="this.status.devicesReady && cloudCopy && data.dirPath == null" mat-flat-button disabled>Выберите
+                        облачную папку</button>
             </mat-card-actions>
 
         </mat-card>

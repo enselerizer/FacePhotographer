@@ -46,7 +46,13 @@ var serial = require("serialport");
 var Ready = require('@serialport/parser-ready');
 var Readline = require('@serialport/parser-readline');
 var dataUriToBuffer = require('data-uri-to-buffer');
+var Stream = require('node-rtsp-stream');
+var ffmpegPath = require('ffmpeg-static');
+var sharp = require('sharp');
+var ping = require('ping');
 var win;
+var stream;
+var cameraHost = "192.168.1.200";
 var tempFolder = __dirname + '\\temp';
 var awUnlink = util.promisify(fs.unlink);
 var awExists = util.promisify(fs.exists);
@@ -71,6 +77,20 @@ function asyncForEach(array, callback) {
             }
         });
     });
+}
+function openStream() {
+    stream = new Stream({
+        name: 'name',
+        streamUrl: 'rtsp://admin:ADminium-12@192.168.1.200:554/ISAPI/Streaming/Channels/101',
+        wsPort: 9999,
+        ffmpegPath: ffmpegPath,
+        ffmpegOptions: {
+            '-b:v': '10000k'
+        }
+    });
+}
+function closeStream() {
+    stream.stop();
 }
 electron_1.app.on('ready', function () { return __awaiter(void 0, void 0, void 0, function () {
     var protocolName;
@@ -101,6 +121,7 @@ electron_1.app.on('window-all-closed', function () {
     electron_1.app.quit();
 });
 function createWindow() {
+    var _this = this;
     win = new electron_1.BrowserWindow({
         icon: path.join(__dirname, 'assets/icon.ico'),
         width: 800,
@@ -150,11 +171,31 @@ function createWindow() {
     electron_1.ipcMain.on('sendImageToSave', function (event, arg) {
         sendImageToSave(arg);
     });
-    electron_1.ipcMain.on('readResolution', function (event, arg) {
-        readResolution();
+    electron_1.ipcMain.on('openStream', function (event, arg) {
+        openStream();
     });
-    electron_1.ipcMain.on('writeResolution', function (event, height) {
-        writeResolution(height, function () { });
+    electron_1.ipcMain.on('closeStream', function (event, arg) {
+        closeStream();
+    });
+    electron_1.ipcMain.on('selectDir', function (event, arg) { return __awaiter(_this, void 0, void 0, function () {
+        var result;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, electron_1.dialog.showOpenDialog(win, {
+                        properties: ['openDirectory']
+                    })];
+                case 1:
+                    result = _a.sent();
+                    win.webContents.send('selectDirR', result.filePaths);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    electron_1.ipcMain.on('pingCamera', function (event, arg) {
+        pingCamera(arg);
+    });
+    electron_1.ipcMain.on('enableCamera', function (event, arg) {
+        beginCameraKeepalive(cameraHost);
     });
 }
 var ports = [];
@@ -305,40 +346,177 @@ function sendReadyReq() {
     }, 300);
 }
 function sendImageToSave(file) {
-    var buffer = dataUriToBuffer(file.img);
-    if (!fs.existsSync("C://mirea-faces/")) {
-        fs.mkdirSync("C://mirea-faces/");
-    }
-    fs.writeFile("C://mirea-faces/" + file.code + ".png", buffer, function (err) {
-        if (err)
-            return console.error(err);
-    });
-}
-function writeResolution(height, callback) {
-    fs.writeFile('res-config.txt', height, { flag: 'w' }, function (err) {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        callback();
-    });
-}
-function readResolution() {
-    if (fs.existsSync("res-config.txt")) {
-        fs.readFile('res-config.txt', "utf8", function (err, data) {
-            if (err) {
-                console.log(err);
-            }
-            else {
-                win.webContents.send('gotResolution', data);
-                console.log(data);
+    return __awaiter(this, void 0, void 0, function () {
+        var buffer, q, dir, changer, lastQ, cyclicBuffer, _loop_1, state_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    buffer = dataUriToBuffer(file.img);
+                    //make sure that all dirs exist
+                    if (!fs.existsSync("C://mirea-faces/")) {
+                        fs.mkdirSync("C://mirea-faces/");
+                    }
+                    if (!fs.existsSync("C://mirea-faces/output/")) {
+                        fs.mkdirSync("C://mirea-faces/output/");
+                    }
+                    if (!fs.existsSync("C://mirea-faces/output/originals/")) {
+                        fs.mkdirSync("C://mirea-faces/output/originals/");
+                    }
+                    if (!fs.existsSync("C://mirea-faces/output/compressed-450x600/")) {
+                        fs.mkdirSync("C://mirea-faces/output/compressed-450x600/");
+                    }
+                    if (!fs.existsSync("C://mirea-faces/output/compressed-150x200/")) {
+                        fs.mkdirSync("C://mirea-faces/output/compressed-150x200/");
+                    }
+                    if (file.cloudPath != null) {
+                        if (!fs.existsSync(file.cloudPath + "/mirea-faces/")) {
+                            fs.mkdirSync(file.cloudPath + "/mirea-faces/");
+                        }
+                        if (!fs.existsSync(file.cloudPath + "/mirea-faces/output/")) {
+                            fs.mkdirSync(file.cloudPath + "/mirea-faces/output/");
+                        }
+                        if (!fs.existsSync(file.cloudPath + "/mirea-faces/output/originals/")) {
+                            fs.mkdirSync(file.cloudPath + "/mirea-faces/output/originals/");
+                        }
+                        if (!fs.existsSync(file.cloudPath + "/mirea-faces/output/compressed-450x600/")) {
+                            fs.mkdirSync(file.cloudPath + "/mirea-faces/output/compressed-450x600/");
+                        }
+                        if (!fs.existsSync(file.cloudPath + "/mirea-faces/output/compressed-150x200/")) {
+                            fs.mkdirSync(file.cloudPath + "/mirea-faces/output/compressed-150x200/");
+                        }
+                    }
+                    //save original
+                    fs.writeFile("C://mirea-faces/output/originals/" + file.code + ".png", buffer, function (err) {
+                        if (err)
+                            return console.error(err);
+                    });
+                    if (file.cloudPath != null) {
+                        fs.writeFile(file.cloudPath + "/mirea-faces/output/originals/" + file.code + ".png", buffer, function (err) {
+                            if (err)
+                                return console.error(err);
+                        });
+                    }
+                    q = 100;
+                    dir = false;
+                    changer = 64;
+                    lastQ = -100;
+                    _a.label = 1;
+                case 1:
+                    if (!true) return [3 /*break*/, 5];
+                    _loop_1 = function () {
+                        var br;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    br = false;
+                                    console.log("Currently trying q = " + q + ", dir " + dir + ", changer " + changer);
+                                    return [4 /*yield*/, sharp(buffer)
+                                            .resize({ width: 450, height: 600 })
+                                            .jpeg({ mozjpeg: true, quality: q })
+                                            .toBuffer({ resolveWithObject: true })
+                                            .then(function (_a) {
+                                            var data = _a.data, info = _a.info;
+                                            if (dir ? (Buffer.byteLength(data.buffer) / 1024 < 50) : (Buffer.byteLength(data.buffer) / 1024 > 50)) {
+                                                q = dir ? Math.max(Math.min(q + changer, 100), 1) : Math.max(Math.min(Math.floor(q - changer), 100), 1);
+                                            }
+                                            else {
+                                                cyclicBuffer = data;
+                                                br = true;
+                                                changer = Math.ceil(changer / 2);
+                                            }
+                                        })];
+                                case 1:
+                                    _a.sent();
+                                    if (br) {
+                                        return [2 /*return*/, "break"];
+                                    }
+                                    return [2 /*return*/];
+                            }
+                        });
+                    };
+                    _a.label = 2;
+                case 2:
+                    if (!true) return [3 /*break*/, 4];
+                    return [5 /*yield**/, _loop_1()];
+                case 3:
+                    state_1 = _a.sent();
+                    if (state_1 === "break")
+                        return [3 /*break*/, 4];
+                    return [3 /*break*/, 2];
+                case 4:
+                    if (Math.abs(q - lastQ) < 2) {
+                        sharp(buffer)
+                            .resize({ width: 450, height: 600 })
+                            .jpeg({ mozjpeg: true, quality: Math.max(q - 1, 1) })
+                            .toBuffer({ resolveWithObject: true })
+                            .then(function (_a) {
+                            var data = _a.data, info = _a.info;
+                            fs.writeFile("C://mirea-faces/output/compressed-450x600/" + file.code + ".jpg", data, function (err) {
+                                if (err)
+                                    return console.error(err);
+                            });
+                            sharp(buffer)
+                                .resize({ width: 150, height: 200 })
+                                .jpeg({ mozjpeg: true, quality: Math.max(q - 1, 1) })
+                                .toBuffer({ resolveWithObject: true })
+                                .then(function (_a) {
+                                var data = _a.data, info = _a.info;
+                                fs.writeFile("C://mirea-faces/output/compressed-150x200/" + file.code + ".jpg", data, function (err) {
+                                    if (err)
+                                        return console.error(err);
+                                });
+                            });
+                        });
+                        if (file.cloudPath != null) {
+                            sharp(buffer)
+                                .resize({ width: 450, height: 600 })
+                                .jpeg({ mozjpeg: true, quality: Math.max(q - 1, 1) })
+                                .toBuffer({ resolveWithObject: true })
+                                .then(function (_a) {
+                                var data = _a.data, info = _a.info;
+                                fs.writeFile(file.cloudPath + "/mirea-faces/output/compressed-450x600/" + file.code + ".jpg", data, function (err) {
+                                    if (err)
+                                        return console.error(err);
+                                });
+                                sharp(buffer)
+                                    .resize({ width: 150, height: 200 })
+                                    .jpeg({ mozjpeg: true, quality: Math.max(q - 1, 1) })
+                                    .toBuffer({ resolveWithObject: true })
+                                    .then(function (_a) {
+                                    var data = _a.data, info = _a.info;
+                                    fs.writeFile(file.cloudPath + "/mirea-faces/output/compressed-150x200/" + file.code + ".jpg", data, function (err) {
+                                        if (err)
+                                            return console.error(err);
+                                    });
+                                });
+                            });
+                        }
+                        return [3 /*break*/, 5];
+                    }
+                    else {
+                        lastQ = q;
+                        dir = !dir;
+                    }
+                    return [3 /*break*/, 1];
+                case 5: return [2 /*return*/];
             }
         });
-    }
-    else {
-        writeResolution("800", function () {
-            win.webContents.send('gotResolution', "800");
+    });
+}
+function pingCamera(host) {
+    ping.sys.probe(host, function (isAlive) {
+        cameraHost = host;
+        win.webContents.send('pingCameraR', isAlive);
+    });
+}
+function beginCameraKeepalive(host) {
+    setInterval(function () {
+        ping.sys.probe(host, function (isAlive) {
+            if (!isAlive) {
+                electron_1.app.relaunch();
+                electron_1.app.exit();
+            }
         });
-    }
+    }, 1000);
 }
 //# sourceMappingURL=main.js.map

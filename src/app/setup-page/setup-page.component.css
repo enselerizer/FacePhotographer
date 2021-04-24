@@ -11,3 +11,35 @@
 .mat-slider-horizontal {
     width: 100%;
   }
+
+
+.hidden {
+opacity: 0;
+  position: absolute;
+  z-index: -1;
+  overflow: hidden;
+  width: 0.4px;
+  height: 0.4px;
+}
+
+.check-btn {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+}
+.check-btn button {
+    height: 36px;
+}
+
+.seldir {
+    display: flex;
+    margin-top: 8px;
+}
+
+.seldir input {
+    margin-right: 12px;
+    height: 31px;
+}

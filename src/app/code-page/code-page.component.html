@@ -33,7 +33,7 @@
             <mat-card-actions *ngIf="this.code != null" class="actions">
                 <button routerLink="/name" mat-flat-button color="primary">Назад</button>
                 <button (click)="resetCode();" mat-flat-button color="primary">Заново</button>
-                <button [focuMe]="true" (keypress.enter)="enter()" routerLink="/capture" mat-flat-button color="accent">Подтвердить</button>
+                <button (click)="enter()" mat-flat-button color="accent">Подтвердить</button>
             </mat-card-actions>
 
         </mat-card>

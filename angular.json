@@ -28,7 +28,9 @@
               "src/styles.scss",
               "./node_modules/@covalent/core/common/platform.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "src/assets/jsmpeg.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -93,7 +95,9 @@
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "src/assets/jsmpeg.min.js"
+            ]
           }
         },
         "lint": {

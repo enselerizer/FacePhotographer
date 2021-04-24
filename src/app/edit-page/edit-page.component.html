@@ -12,7 +12,7 @@
 
             <mat-card-content class="content">
              
-                <angular-cropper class="image" [cropperOptions]="this.config" [imageUrl]="img.imageAsDataUrl"></angular-cropper>
+                <angular-cropper class="image" [cropperOptions]="this.config" [imageUrl]="img"></angular-cropper>
 
 
                 <div>
@@ -53,8 +53,8 @@
             
 
             <mat-card-footer class="actions">
-                <button routerLink="/capture" mat-flat-button color="primary">Назад</button>
-                <button [focuMe]="true" (keypress.enter)="save()" (click)="save()" mat-flat-button color="accent">Завершить</button>
+                <button (click)="enter()" mat-flat-button color="primary">Назад</button>
+                <button (click)="save()" mat-flat-button color="accent">Завершить</button>
             </mat-card-footer>
 
         </mat-card>
